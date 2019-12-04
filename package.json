@@ -1,0 +1,12 @@
+{
+  "name": "adventofcode",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "day1": "node day1/solution.js",
+    "day2": "node day2/solution.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
