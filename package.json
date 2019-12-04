@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "day1": "node day1/solution.js",
-    "day2": "node day2/solution.js"
+    "day2": "node day2/solution.js",
+    "day4": "node day4/solution.js"
   },
   "author": "",
   "license": "ISC"
