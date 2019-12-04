@@ -63,18 +63,17 @@ function processOpCode(pos, mem) {
     return nextPos;
 }
 
-function runIntCodeProgram(program) {
-    const programCopy = [...program];
+function runIntCodeProgram(mem, noun, verb) {
+    mem[1] = noun;
+    mem[2] = verb;
     let instructionPointer = 0;
-    while (instructionPointer >= 0 && instructionPointer < programCopy.length) {
-        instructionPointer = processOpCode(instructionPointer, programCopy);
+    while (instructionPointer >= 0 && instructionPointer < mem.length) {
+        instructionPointer = processOpCode(instructionPointer, mem);
     }
-    return programCopy;
+    return mem[0];
 }
 
 // Part 1
-const restoredState = [...inputProgram];
-restoredState[1] = 12;
-restoredState[2] = 2;
-result = runIntCodeProgram(restoredState);
-console.log("Part1: " + result[0]);
+
+result = runIntCodeProgram([...inputProgram], 12, 2);
+console.log("Part1: " + result);
