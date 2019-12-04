@@ -75,5 +75,5 @@ function runIntCodeProgram(mem, noun, verb) {
 
 // Part 1
 
-result = runIntCodeProgram([...inputProgram], 12, 2);
-console.log("Part1: " + result);
+const part1Result = runIntCodeProgram([...inputProgram], 12, 2);
+console.log("Part1: " + part1Result);
