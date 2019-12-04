@@ -8,8 +8,8 @@ interface Point {
     meta?: any
 }
 
-function getManhattanDist({x, y}: Point) {
-    return Math.abs(x) + Math.abs(y);
+function getManhattanDist(point: Point) {
+    return Math.abs(point.x) + Math.abs(point.y);
 }
 
 interface Instruction {
@@ -68,8 +68,8 @@ function createInstruction(opName: string): Instruction {
 }
 
 function interpolateWire(wire: string[]): Point[] {
-    const allPoints = [];
-    let currStartPoint = {x: 0, y: 0, meta: 'start'};
+    const allPoints: Point[] = [];
+    let currStartPoint: Point = {x: 0, y: 0, meta: 'start'};
     for (let val of wire) {
         allPoints.push(...interpolatePoints(currStartPoint, val));
         currStartPoint = allPoints[allPoints.length - 1];
@@ -77,8 +77,8 @@ function interpolateWire(wire: string[]): Point[] {
     return allPoints;
 }
 
-function interpolatePoints(startPos: Point, opString: string) {
-    const points = [];
+function interpolatePoints(startPos: Point, opString: string): Point[] {
+    const points: Point[] = [];
     const instruction: Instruction = createInstruction(opString);
     let lastPos: Point = startPos;
     for (let i = 0; i < instruction.times; i++) {
@@ -89,19 +89,17 @@ function interpolatePoints(startPos: Point, opString: string) {
     return points;
 }
 
-function pointEquals(point1, point2) {
+function pointEquals(point1: Point, point2: Point): boolean {
     return point1.x === point2.x && point1.y === point2.y;
 }
 
-function compareDistance(point1, point2) {
+function compareDistance(point1: Point, point2: Point) {
     return getManhattanDist(point1) - getManhattanDist(point2);
 }
 
 
 function indexOfFirstDistanceMatchInSortedList(searchPoint: Point, pointList: Point[], startIndex = 0): number {
     let inputDistance = getManhattanDist(searchPoint);
-    let firstSameIndex = undefined;
-
     for (let index = startIndex; index < pointList.length; index++) {
         const otherPoint = pointList[index];
         if (inputDistance == getManhattanDist(otherPoint)) {
@@ -114,7 +112,6 @@ function indexOfFirstDistanceMatchInSortedList(searchPoint: Point, pointList: Po
 
 function getFirstMatchInSortedList(searchPoint: Point, pointList: Point[], startIndex = 0): Point | undefined {
     let inputDistance = getManhattanDist(searchPoint);
-    let firstSameIndex = undefined;
     for (let index = startIndex; index < pointList.length; index++) {
         const otherPoint = pointList[index];
         if (pointEquals(searchPoint, otherPoint)) {
@@ -131,7 +128,7 @@ function findClosestMatch(wirePointLists: Point[][]) {
     const sortedLists = wirePointLists.map((pointList: Point[]) => pointList.sort(compareDistance));
     for (const point of sortedLists[0]) {
         let otherLists = sortedLists.slice(1);
-        let processedPointsPointers = otherLists.map((pointList: Point[]) => 0);
+        let processedPointsPointers = otherLists.map(() => 0);
         let matchingPoints = otherLists.map((pointList: Point[], index) => {
             processedPointsPointers[index] = indexOfFirstDistanceMatchInSortedList(point, pointList, processedPointsPointers[index]);
             if (index == -1) {
@@ -139,7 +136,7 @@ function findClosestMatch(wirePointLists: Point[][]) {
             }
             return getFirstMatchInSortedList(point, pointList, processedPointsPointers[index]);
         });
-        const isInAllLists: boolean = matchingPoints.reduce((prev, next) => !!prev && !!next, true);
+        const isInAllLists: boolean = matchingPoints.reduce<boolean>((prev, next) => prev && !!next, true);
         if (isInAllLists) {
             point.meta = {currMeta: point.meta, otherPoints: matchingPoints};
             return point;
