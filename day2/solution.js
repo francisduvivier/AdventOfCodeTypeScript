@@ -77,3 +77,14 @@ function runIntCodeProgram(mem, noun, verb) {
 
 const part1Result = runIntCodeProgram([...inputProgram], 12, 2);
 console.log("Part1: " + part1Result);
+
+// Part 2
+let part2Result = undefined;
+for (let noun = 0; noun < 100 && part2Result === undefined; noun++) {
+    for (let verb = 0; verb < 100 && part2Result === undefined; verb++) {
+        if (runIntCodeProgram([...inputProgram], noun, verb) === 19690720) {
+            part2Result = 100 * noun + verb;
+        }
+    }
+}
+console.log("Part2: " + part2Result);
