@@ -134,6 +134,9 @@ function findClosestMatch(wirePointLists: Point[][]) {
         let processedPointsPointers = otherLists.map((pointList: Point[]) => 0);
         let matchingPoints = otherLists.map((pointList: Point[], index) => {
             processedPointsPointers[index] = indexOfFirstDistanceMatchInSortedList(point, pointList, processedPointsPointers[index]);
+            if (index == -1) {
+                return undefined;
+            }
             return getFirstMatchInSortedList(point, pointList, processedPointsPointers[index]);
         });
         const isInAllLists: boolean = matchingPoints.reduce((prev, next) => !!prev && !!next, true);
