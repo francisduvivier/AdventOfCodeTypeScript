@@ -4,12 +4,17 @@ const inputWires = [inputWire1, inputWire2];
 
 interface Point {
     x: number,
-    y: number
+    y: number,
+    delay: number,
     meta?: any
 }
 
 function getManhattanDist(point: Point) {
     return Math.abs(point.x) + Math.abs(point.y);
+}
+
+function getSignalDelay(point: Point): number {
+    return point.delay;
 }
 
 interface Instruction {
@@ -26,6 +31,7 @@ function createInstruction(opName: string): Instruction {
                 return {
                     x: p.x,
                     y: p.y - 1,
+                    delay: p.delay + 1,
                     meta: opName
                 }
             };
@@ -35,6 +41,7 @@ function createInstruction(opName: string): Instruction {
                 return {
                     x: p.x,
                     y: p.y + 1,
+                    delay: p.delay + 1,
                     meta: opName
                 }
             };
@@ -44,6 +51,7 @@ function createInstruction(opName: string): Instruction {
                 return {
                     x: p.x - 1,
                     y: p.y,
+                    delay: p.delay + 1,
                     meta: opName
                 }
             };
@@ -53,6 +61,7 @@ function createInstruction(opName: string): Instruction {
                 return {
                     x: p.x + 1,
                     y: p.y,
+                    delay: p.delay + 1,
                     meta: opName
                 }
             };
@@ -69,7 +78,7 @@ function createInstruction(opName: string): Instruction {
 
 function interpolateWire(wire: string[]): Point[] {
     const allPoints: Point[] = [];
-    let currStartPoint: Point = {x: 0, y: 0, meta: 'start'};
+    let currStartPoint: Point = {x: 0, y: 0, delay: 0, meta: 'start'};
     for (let val of wire) {
         allPoints.push(...interpolatePoints(currStartPoint, val));
         currStartPoint = allPoints[allPoints.length - 1];
@@ -131,7 +140,7 @@ function findClosestMatch(wirePointLists: Point[][]) {
         let processedPointsPointers = otherLists.map(() => 0);
         let matchingPoints = otherLists.map((pointList: Point[], index) => {
             processedPointsPointers[index] = indexOfFirstDistanceMatchInSortedList(point, pointList, processedPointsPointers[index]);
-            if (index == -1) {
+            if (processedPointsPointers[index] == -1) {
                 return undefined;
             }
             return getFirstMatchInSortedList(point, pointList, processedPointsPointers[index]);
@@ -151,7 +160,7 @@ function findClosestIntersection(wires: string[][]) {
     return findClosestMatch(wirePointLists);
 }
 
+// Part 1
 let closestIntersectPoint = findClosestIntersection(inputWires);
-console.log("Part 1: " + JSON.stringify(closestIntersectPoint));
 const closestIntersectDistance = getManhattanDist(closestIntersectPoint);
 console.log("Part 1: " + closestIntersectDistance);
