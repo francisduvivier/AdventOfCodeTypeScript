@@ -7,8 +7,8 @@ function is6Digits(candidate) {
 }
 
 // Two adjacent digits are the same (like 22 in 122345).
-function hasAdjacentSameNumbers(candidate) {
-    return !!(String(candidate).match(/(11|22|33|44|55|66|77|88|99|00)/))
+function hasAPair(candidate) {
+    return !!String(candidate).match(/([0-9])\1/);
 }
 
 function digitsOnlyIncrease(candidate) {
@@ -26,7 +26,7 @@ let nbValid = 0;
 for (let candidate = inputStart; candidate <= inputEnd; candidate++) {
     if (
         is6Digits(candidate)
-        && hasAdjacentSameNumbers(candidate)
+        && hasAPair(candidate)
         && digitsOnlyIncrease(candidate)
     ) {
         nbValid++;
@@ -35,8 +35,9 @@ for (let candidate = inputStart; candidate <= inputEnd; candidate++) {
 console.log("Part 1: " + nbValid);
 
 // An Elf just remembered one more important detail: the two adjacent matching digits are not part of a larger group of matching digits.
-function hasExactly2AdjacentSameNumbers(candidate) {
-    return !!(` ${candidate} `).match(/([^1]11[^1]|[^2]22[^2]|[^3]33[^3]|[^4]44[^4]|[^5]55[^5]|[^6]66[^6]|[^7]77[^7]|[^8]88[^8]|[^9]99[^9]|[^0]00[^0])/);
+function hasAPairStrict(candidate) {
+    return hasAPair((String(candidate)).replace(/([0-9])\1\1+/g, 'x'));
+
 }
 
 let nbValidPart2 = 0;
@@ -45,7 +46,7 @@ let nbValidPart2 = 0;
 for (let candidate = inputStart; candidate <= inputEnd; candidate++) {
     if (
         is6Digits(candidate)
-        && hasExactly2AdjacentSameNumbers(candidate)
+        && hasAPairStrict(candidate)
         && digitsOnlyIncrease(candidate)
     ) {
         nbValidPart2++;
