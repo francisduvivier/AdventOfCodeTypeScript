@@ -30,32 +30,44 @@ const inputProgram = [
     99,
     2, 14, 0, 0];
 
-function processIntCode(pos, ints) {
-    const intCode = ints[pos];
-    shouldStop = false;
-    switch (intCode) {
+function processOpCode(pos, mem) {
+    const opCode = mem[pos];
+    let nbArgs = 0;
+    let operation = () => {
+    };
+    switch (opCode) {
         case 1:
-            ints[ints[pos + 3]] = ints[ints[pos + 1]] + ints[ints[pos + 2]];
+            nbArgs = 3;
+            operation = (addrss) => {
+                mem[addrss[2]] = mem[addrss[0]] + mem[addrss[1]];
+            };
             break;
         case 2:
-            ints[ints[pos + 3]] = ints[ints[pos + 1]] * ints[ints[pos + 2]];
+            nbArgs = 3;
+            operation = (addrss) => {
+                mem[addrss[2]] = mem[addrss[0]] * mem[addrss[1]];
+            };
             break;
         case 99:
-            shouldStop = true;
+            nbArgs = NaN;
             break;
         default:
-            throw `unknown intcode [${ints[pos]}] at pos [${pos}]`
+            throw `unknown intcode [${mem[pos]}] at pos [${pos}]`
     }
-    return shouldStop;
+    const addresses = [];
+    for (let i = 0; i <= nbArgs; i++) {
+        addresses[i] = mem[pos + 1 + i];
+    }
+    operation(addresses);
+    const nextPos = nbArgs >= 0 ? pos + 1 + nbArgs : NaN;
+    return nextPos;
 }
 
 function runIntCodeProgram(program) {
     const programCopy = [...program];
-    let shouldStop = false;
-    let currPos = 0;
-    while (!shouldStop) {
-        shouldStop = processIntCode(currPos, programCopy);
-        currPos += 4;
+    let instructionPointer = 0;
+    while (instructionPointer >= 0 && instructionPointer < programCopy.length) {
+        instructionPointer = processOpCode(instructionPointer, programCopy);
     }
     return programCopy;
 }
@@ -65,4 +77,4 @@ const restoredState = [...inputProgram];
 restoredState[1] = 12;
 restoredState[2] = 2;
 result = runIntCodeProgram(restoredState);
-console.log(result[0]);
+console.log("Part1: " + result[0]);
