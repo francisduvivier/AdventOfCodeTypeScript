@@ -6,8 +6,13 @@
   "scripts": {
     "day1": "node day1/solution.js",
     "day2": "node day2/solution.js",
+    "day3": "ts-node day3/solution.ts",
     "day4": "node day4/solution.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.3"
+  }
 }
