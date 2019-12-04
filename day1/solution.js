@@ -1,3 +1,4 @@
+// Input
 masses = [
     137857,
     121089,
@@ -100,12 +101,12 @@ masses = [
     73691,
     65800
 ];
-// 1
+// Part 1
 calcFuelNoRec = (mass) => Math.floor(mass / 3) - 2;
 sum = (mArray) => mArray.reduce((first, next) => first + next, 0);
 console.log(sum(masses.map(calcFuelNoRec)));
 
-// 2
+// Part 2
 function calcFuel(mass) {
     first = calcFuelNoRec(mass);
     if (first <= 0) {
