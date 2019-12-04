@@ -13,8 +13,12 @@ function getManhattanDist(point: Point) {
     return Math.abs(point.x) + Math.abs(point.y);
 }
 
-function getSignalDelay(point: Point): number {
-    return point.delay;
+function getSignalDelay(point?: Point): number {
+    return point && point.delay || Infinity;
+}
+
+function getIntersectDelay(interSect?: InterSect): number {
+    return interSect && interSect.points.map(point => getSignalDelay(point)).reduce((curr, next) => curr + next, 0) || Infinity;
 }
 
 interface Instruction {
@@ -119,14 +123,13 @@ function indexOfFirstDistanceMatchInSortedList(searchPoint: Point, pointList: Po
 }
 
 
-function getFirstMatchInSortedList(searchPoint: Point, pointList: Point[], startIndex = 0): Point | undefined {
-    let inputDistance = getManhattanDist(searchPoint);
+function getFirstMatchInSortedList(searchPoint: Point, pointList: Point[], startIndex = 0, compareFunc = getManhattanDist, maxWeight = Infinity): Point | undefined {
     for (let index = startIndex; index < pointList.length; index++) {
         const otherPoint = pointList[index];
         if (pointEquals(searchPoint, otherPoint)) {
             return otherPoint;
         }
-        if (inputDistance < getManhattanDist(otherPoint)) {
+        if (maxWeight < compareFunc(otherPoint)) {
             return undefined;
         }
     }
@@ -143,7 +146,7 @@ function findClosestMatch(wirePointLists: Point[][]) {
             if (processedPointsPointers[index] == -1) {
                 return undefined;
             }
-            return getFirstMatchInSortedList(point, pointList, processedPointsPointers[index]);
+            return getFirstMatchInSortedList(point, pointList, processedPointsPointers[index], getManhattanDist, getManhattanDist(point));
         });
         const isInAllLists: boolean = matchingPoints.reduce<boolean>((prev, next) => prev && !!next, true);
         if (isInAllLists) {
@@ -154,13 +157,36 @@ function findClosestMatch(wirePointLists: Point[][]) {
     throw "no matching point found";
 }
 
-function findClosestIntersection(wires: string[][]) {
-    const wirePointLists = wires
-        .map((wire) => interpolateWire(wire));
-    return findClosestMatch(wirePointLists);
-}
 
 // Part 1
-let closestIntersectPoint = findClosestIntersection(inputWires);
+
+const interPolatedWire1 = interpolateWire(inputWire1);
+const interPolatedWire2 = interpolateWire(inputWire2);
+let closestIntersectPoint = findClosestMatch([interPolatedWire1, interPolatedWire2]);
 const closestIntersectDistance = getManhattanDist(closestIntersectPoint);
 console.log("Part 1: " + closestIntersectDistance);
+
+
+interface InterSect {
+    points: (Point | undefined)[];
+}
+
+function findShortestMatch(firstWire: Point[], otherWire: Point[]) {
+    let currBestInterSection: InterSect | undefined = undefined;
+    for (const point of firstWire) {
+        if (getSignalDelay(point) > getIntersectDelay(currBestInterSection)) {
+            break;
+        }
+        const bestDelay = getIntersectDelay(currBestInterSection);
+        const currResult = getFirstMatchInSortedList(point, otherWire, 0, getSignalDelay, bestDelay - getSignalDelay(point));
+        if (getIntersectDelay({points: [point, currResult]}) < bestDelay) {
+            currBestInterSection = {points: [point, currResult]};
+        }
+    }
+    return currBestInterSection;
+}
+
+// Part 2
+
+const fastestIntersectPoint = findShortestMatch(interPolatedWire1, interPolatedWire2);
+console.log("Part 2: " + getIntersectDelay(fastestIntersectPoint));
