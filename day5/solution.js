@@ -16,10 +16,10 @@ function getArgs(mem, addresses, modesString) {
     return args;
 }
 
-const AIR_CONDITIONER_ID = 1;
+let currInput = -1;
 
 function getInput() {
-    return AIR_CONDITIONER_ID;
+    return currInput;
 }
 
 const outputs = [];
@@ -34,6 +34,7 @@ function processOpCode(pos, mem) {
     // console.log(`opCode [${opCode}] instruct [${instruct}]`);
     const modesString = instruct.slice(0, instruct.length - 2);
     let nbArgs = 0;
+    let nextPos = 0;
     let operation = () => {
     };
     switch (opCode) {
@@ -61,8 +62,37 @@ function processOpCode(pos, mem) {
                 doOutput(args[0]);
             };
             break;
+        case 5:
+            nbArgs = 2;
+            operation = (addrss, args) => {
+                if (args[0] !== 0) {
+                    nextPos = args[1]
+                }
+            };
+            break;
+        case 6:
+            nbArgs = 2;
+            operation = (addrss, args) => {
+                if (args[0] === 0) {
+                    nextPos = args[1]
+                }
+            };
+            break;
+        case 7:
+            nbArgs = 3;
+            operation = (addrss, args) => {
+                mem[addrss[2]] = args[0] < args[1] ? 1 : 0;
+            };
+            break;
+        case 8:
+            nbArgs = 3;
+            operation = (addrss, args) => {
+                mem[addrss[2]] = args[0] === args[1] ? 1 : 0;
+            };
+            break;
         case 99:
             nbArgs = NaN;
+            nextPos = -1;
             break;
         default:
             throw `unknown intcode [${mem[pos]}] at pos [${pos}]`
@@ -75,8 +105,9 @@ function processOpCode(pos, mem) {
     // console.log(`addresses [${addresses}]`);
     const args = getArgs(mem, addresses, modesString);
     // console.log(`args [${args}]`);
+    nextPos = nbArgs >= 0 ? pos + 1 + nbArgs : NaN;
     operation(addresses, args);
-    const nextPos = nbArgs >= 0 ? pos + 1 + nbArgs : NaN;
+
     return nextPos;
 }
 
@@ -96,6 +127,18 @@ function runIntCodeProgram(mem, noun, verb) {
 }
 
 // Part 1
-const part1Result = runFromMem([...input]);
+const AIR_CONDITIONER_ID = 1;
+currInput = AIR_CONDITIONER_ID;
+outputs.length = 0;
+runFromMem([...input]);
 outputs.slice(0, outputs.length - 1).map((out, pos) => out === 0 || console.error(`non 0 output [${out}] at pos [${pos}]`));
 console.log("Part1: " + outputs[outputs.length - 1]);
+
+
+// Part 1
+const RADIATOR_CONTROLLER_ID = 5;
+currInput = RADIATOR_CONTROLLER_ID;
+outputs.length = 0;
+runFromMem([...input]);
+outputs.length > 1 && console.error(`more than 1 output ${outputs}`);
+console.log("Part2: " + outputs[outputs.length - 1]);
