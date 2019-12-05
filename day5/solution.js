@@ -97,4 +97,5 @@ function runIntCodeProgram(mem, noun, verb) {
 
 // Part 1
 const part1Result = runFromMem([...input]);
+outputs.slice(0, outputs.length - 1).map((out, pos) => out === 0 || console.error(`non 0 output [${out}] at pos [${pos}]`));
 console.log("Part1: " + outputs[outputs.length - 1]);
