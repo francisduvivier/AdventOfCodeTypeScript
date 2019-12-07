@@ -15,9 +15,13 @@ function getArgs(mem: number[], addresses: number[], modesString: string) {
 }
 
 let currInput = -1;
+let currPhase: number | undefined = undefined;
+let providePhase = true;
 
 function getInput() {
-    return currInput;
+    const input = (providePhase && currPhase !== undefined) ? currPhase : currInput;
+    providePhase = !providePhase;
+    return input;
 }
 
 export const outputs: number[] = [];
@@ -124,6 +128,7 @@ export function runIntCodeProgram(modifyableMemory: number[], noun: number, verb
     return runFromMem(modifyableMemory);
 }
 
-export function setStdInput(input: number) {
+export function setStdInput(input: number, phase?: number) {
     currInput = input;
+    currPhase = phase;
 }
