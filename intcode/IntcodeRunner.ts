@@ -152,7 +152,3 @@ export function setStdInput(input: number, phase?: number) {
         providePhase = true;
     }
 }// const nbAmps = 5;
-
-export function getHalted() {
-    return lastNextPos == -1;
-}
