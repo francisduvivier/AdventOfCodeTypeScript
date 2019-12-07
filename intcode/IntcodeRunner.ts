@@ -14,13 +14,11 @@ function getArgs(mem: number[], addresses: number[], modesString: string) {
     return args;
 }
 
-let currInput = -1;
-let currPhase: number | undefined = undefined;
-let providePhase = false;
+const queuedInput: number[] = [];
 
 function getInput() {
-    const input = (providePhase && currPhase !== undefined) ? currPhase : currInput;
-    providePhase = false;
+    const input = queuedInput[0];
+    queuedInput.splice(0, 1);
     return input;
 }
 
@@ -51,6 +49,7 @@ function processOpCode(pos: number, mem: number[]) {
     let nextPos = 0;
     let operation: (addrss: number[], args: number[]) => void = () => {
     };
+    let waitingForInput = false;
     switch (opCode) {
         case 1:
             nbArgs = 3;
@@ -67,7 +66,12 @@ function processOpCode(pos: number, mem: number[]) {
         case 3:
             nbArgs = 1;
             operation = (addrss) => {
-                mem[addrss[0]] = getInput();
+                let input = getInput();
+                if (input === undefined) {
+                    waitingForInput = true;
+                } else {
+                    mem[addrss[0]] = input;
+                }
             };
             break;
         case 4:
@@ -122,19 +126,17 @@ function processOpCode(pos: number, mem: number[]) {
     // console.log(`args [${args}]`);
     nextPos = nbArgs >= 0 ? pos + 1 + nbArgs : NaN;
     operation(addresses, args);
+    if (waitingForInput) {
+        return -1
+    }
     lastNextPos = nextPos;
     return nextPos;
 }
 
-export function runFromMem(mem: number[], stopOnOutput?: boolean, startPointer?: number) {
+export function runFromMem(mem: number[], startPointer?: number) {
     let instructionPointer = startPointer || 0;
     while (instructionPointer >= 0 && instructionPointer < mem.length) {
-        const outputLen = outputs.length;
-        // console.log(`pointer [${instructionPointer}]`);
         instructionPointer = processOpCode(instructionPointer, mem);
-        if (stopOnOutput && outputLen != outputs.length) {
-            return getOutput();
-        }
     }
     return mem[0];
 }
@@ -145,10 +147,6 @@ export function runIntCodeProgram(modifyableMemory: number[], noun: number, verb
     return runFromMem(modifyableMemory);
 }
 
-export function setStdInput(input: number, phase?: number) {
-    currInput = input;
-    currPhase = phase;
-    if (phase != undefined) {
-        providePhase = true;
-    }
-}// const nbAmps = 5;
+export function queueInput(...inputs: number[]) {
+    queuedInput.push(...inputs);
+}

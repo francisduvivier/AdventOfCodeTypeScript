@@ -1,4 +1,4 @@
-import {getNextPos, getOutput, runFromMem, setStdInput} from "./intcode/IntCodeRunner";
+import {getNextPos, getOutput, runFromMem, queueInput} from "./intcode/IntCodeRunner";
 import * as assert from "assert";
 
 const input = [3, 8, 1001, 8, 10, 8, 105, 1, 0, 0, 21, 34, 43, 60, 81, 94, 175, 256, 337, 418, 99999, 3, 9, 101, 2, 9, 9, 102, 4, 9, 9, 4, 9, 99, 3, 9, 102, 2, 9, 9, 4, 9, 99, 3, 9, 102, 4, 9, 9, 1001, 9, 4, 9, 102, 3, 9, 9, 4, 9, 99, 3, 9, 102, 4, 9, 9, 1001, 9, 2, 9, 1002, 9, 3, 9, 101, 4, 9, 9, 4, 9, 99, 3, 9, 1001, 9, 4, 9, 102, 2, 9, 9, 4, 9, 99, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 99, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 99, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 99, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 99, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 99]
@@ -15,8 +15,11 @@ function calcOutput(phases: number[], memCopy: number[], recursive?: boolean) {
             if (halteds[i]) {
                 console.error("trying to restart halted program", i)
             }
-            setStdInput(currentInput, firstTime ? phases[i] : undefined);
-            runFromMem(memCopies[i], recursive, recursive ? pointerLocations[i] : 0);
+            if (firstTime) {
+                queueInput(phases[i]);
+            }
+            queueInput(currentInput);
+            runFromMem(memCopies[i], recursive ? pointerLocations[i] : 0);
             pointerLocations[i] = getNextPos();
             halteds[i] = !(getNextPos() >= 0);
             currentInput = getOutput();
@@ -64,11 +67,12 @@ function calcHighestThrust(inputMem: number[], possiblePhases: number[], recursi
 // Part 1
 const [highestThrust, bestPhasesSetting] = calcHighestThrust(input, [0, 1, 2, 3, 4]);
 
-console.log("Part 1: ", highestThrust, JSON.stringify(bestPhasesSetting));
+console.log("Part 1:", highestThrust, JSON.stringify(bestPhasesSetting));
 
 const part2Phases = [5, 6, 7, 8, 9];
 const testInput = [3, 52, 1001, 52, -5, 52, 3, 53, 1, 52, 56, 54, 1007, 54, 5, 55, 1005, 55, 26, 1001, 54,
     -5, 54, 1105, 1, 12, 1, 53, 54, 53, 1008, 54, 0, 55, 1001, 55, 1, 55, 2, 53, 55, 53, 4,
     53, 1001, 56, -1, 56, 1005, 56, 6, 99, 0, 0, 0, 0, 10];
 assert.deepEqual(calcHighestThrust(testInput, part2Phases, true), [18216, [9, 7, 8, 5, 6]]);
-console.log("Part2: ", JSON.stringify(calcHighestThrust(input, part2Phases, true)));
+console.log("Part 2: test input success");
+console.log("Part 2:", JSON.stringify(calcHighestThrust(input, part2Phases, true)));
