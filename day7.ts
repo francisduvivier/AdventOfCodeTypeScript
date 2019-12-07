@@ -1,9 +1,9 @@
-import {getNextPos, getOutput, runFromMem, queueInput} from "./intcode/IntCodeRunner";
 import * as assert from "assert";
+import {IntcodeRunner} from "./intcode/IntcodeRunner";
 
 const input = [3, 8, 1001, 8, 10, 8, 105, 1, 0, 0, 21, 34, 43, 60, 81, 94, 175, 256, 337, 418, 99999, 3, 9, 101, 2, 9, 9, 102, 4, 9, 9, 4, 9, 99, 3, 9, 102, 2, 9, 9, 4, 9, 99, 3, 9, 102, 4, 9, 9, 1001, 9, 4, 9, 102, 3, 9, 9, 4, 9, 99, 3, 9, 102, 4, 9, 9, 1001, 9, 2, 9, 1002, 9, 3, 9, 101, 4, 9, 9, 4, 9, 99, 3, 9, 1001, 9, 4, 9, 102, 2, 9, 9, 4, 9, 99, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 99, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 99, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 99, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 99, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 99]
 console.log("input.length", input.length);
-
+const intcodeVM = new IntcodeRunner();
 function calcOutput(phases: number[], memCopy: number[], recursive?: boolean) {
     let currentInput = 0;
     const memCopies = phases.map(() => [...memCopy]);
@@ -16,13 +16,13 @@ function calcOutput(phases: number[], memCopy: number[], recursive?: boolean) {
                 console.error("trying to restart halted program", i)
             }
             if (firstTime) {
-                queueInput(phases[i]);
+                intcodeVM.queueInput(phases[i]);
             }
-            queueInput(currentInput);
-            runFromMem(memCopies[i], recursive ? pointerLocations[i] : 0);
-            pointerLocations[i] = getNextPos();
-            halteds[i] = !(getNextPos() >= 0);
-            currentInput = getOutput();
+            intcodeVM.queueInput(currentInput);
+            intcodeVM.runFromMem(memCopies[i], recursive ? pointerLocations[i] : 0);
+            pointerLocations[i] = intcodeVM.getNextPos();
+            halteds[i] = !(intcodeVM.getNextPos() >= 0);
+            currentInput = intcodeVM.getOutput();
         }
         firstTime = false;
     }
