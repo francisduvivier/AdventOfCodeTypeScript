@@ -13,8 +13,11 @@ function getNbParents(child, parentMap) {
 }
 
 function getParentMap(orbits) {
-    parentMap = new Map();
+    const parentMap = new Map();
     orbits.forEach((tuple) => {
+        if (parentMap.get(tuple.child)) {
+            throw 'duplicate child';
+        }
         parentMap.set(tuple.child, tuple.parent);
     });
     return parentMap;
@@ -48,7 +51,7 @@ console.log("Part1: " + countIndirectOrbits(getTupleList(input)));
 
 function getParentSequence(child, parentMap) {
     let parent = parentMap.get(child);
-    const result = []
+    const result = [];
     if (parent === undefined) {
         return result;
     }
@@ -57,30 +60,26 @@ function getParentSequence(child, parentMap) {
     return result;
 }
 
-function findFirstDifference(parents1, parents2) {
+function findClosestSameParent(parents1, parents2) {
     const [shortestList, otherList] = parents1.length < parents2.length ? [parents1, parents2] : [parents2, parents1];
-    for (let i = 0; i < shortestList.length; i++) {
-        if (shortestList[i] !== otherList[i]) {
+    for (let i = shortestList.length - 1; i >= 0; i--) {
+        if (shortestList[i] === otherList[i]) {
             return i;
         }
     }
-    return shortestList.length - 1;
+    throw 'no parent in common!';
 }
 
 function findDistanceBetween(planet1, planet2, input) {
     const parentMap = getParentMap(getTupleList(input));
     const parents1 = getParentSequence(planet1, parentMap);
-    console.log('parents1', parents1.length);
     const parents2 = getParentSequence(planet2, parentMap);
-    console.log('parents2', parents2.length);
-    diffIndex = findFirstDifference(parents1, parents2);
-    console.log('diffIndex', diffIndex);
-
-    return parents1.length + parents2.length - (diffIndex) * 2;
+    const closestSameParentIndex = findClosestSameParent(parents1, parents2);
+    return parents1.length + parents2.length - (closestSameParentIndex + 1) * 2;
 }
 
 // Part 2
-if (true) {
+if (TESTING) {
     const testInput = require('./testinput2');
     console.log("Part2Test): " + findDistanceBetween('YOU', 'SAN', testInput));
 }
