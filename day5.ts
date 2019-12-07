@@ -2,7 +2,7 @@ const input = [3, 225, 1, 225, 6, 6, 1100, 1, 238, 225, 104, 0, 1102, 27, 28, 22
 
 const IMMEDIATE_MODE = 1;
 
-function getArgs(mem, addresses, modesString) {
+function getArgs(mem: number[], addresses: number[], modesString: string) {
     const args = [];
     const modeLetters = [...modesString].reverse();
     for (let i = 0; i < addresses.length; i++) {
@@ -22,20 +22,20 @@ function getInput() {
     return currInput;
 }
 
-const outputs = [];
+const outputs: number[] = [];
 
-function doOutput(arg) {
+function doOutput(arg: number) {
     outputs.push(arg);
 }
 
-function processOpCode(pos, mem) {
+function processOpCode(pos: number, mem: number[]) {
     let instruct = `${mem[pos]}`;
     const opCode = Number(instruct.slice(instruct.length - 2));
     // console.log(`opCode [${opCode}] instruct [${instruct}]`);
-    const modesString = instruct.slice(0, instruct.length - 2);
+    const modesString: string = instruct.slice(0, instruct.length - 2);
     let nbArgs = 0;
     let nextPos = 0;
-    let operation = () => {
+    let operation: (addrss: number[], args: number[]) => void = () => {
     };
     switch (opCode) {
         case 1:
@@ -52,7 +52,7 @@ function processOpCode(pos, mem) {
             break;
         case 3:
             nbArgs = 1;
-            operation = (addrss, args) => {
+            operation = (addrss) => {
                 mem[addrss[0]] = getInput();
             };
             break;
@@ -111,7 +111,7 @@ function processOpCode(pos, mem) {
     return nextPos;
 }
 
-function runFromMem(mem) {
+function runFromMem(mem: number[]) {
     let instructionPointer = 0;
     while (instructionPointer >= 0 && instructionPointer < mem.length) {
         // console.log(`pointer [${instructionPointer}]`);
@@ -120,10 +120,10 @@ function runFromMem(mem) {
     return mem[0];
 }
 
-function runIntCodeProgram(mem, noun, verb) {
-    mem[1] = noun;
-    mem[2] = verb;
-    return runFromMem(mem);
+function runIntCodeProgram(modifyableMemory: number[], noun: number, verb: number) {
+    modifyableMemory[1] = noun;
+    modifyableMemory[2] = verb;
+    return runFromMem(modifyableMemory);
 }
 
 // Part 1
