@@ -1,4 +1,4 @@
-module.exports = `COM)B
+export default `COM)B
 B)C
 C)D
 D)E

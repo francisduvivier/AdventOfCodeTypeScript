@@ -1,10 +1,9 @@
-const input = require('./input');
+const TESTING = false;
+import {input} from './input';
 
-function countDirectOrbits(orbits) {
-    return orbits.length;
-}
+type Orbit = { child: Body, parent: Body }
 
-function getNbParents(child, parentMap) {
+function getNbParents(child: Body, parentMap: ParentMap): number {
     let parent = parentMap.get(child);
     if (parent === undefined) {
         return 0;
@@ -12,7 +11,7 @@ function getNbParents(child, parentMap) {
     return 1 + getNbParents(parent, parentMap);
 }
 
-function getParentMap(orbits) {
+function getParentMap(orbits: Orbit[]) {
     const parentMap = new Map();
     orbits.forEach((tuple) => {
         if (parentMap.get(tuple.child)) {
@@ -23,8 +22,8 @@ function getParentMap(orbits) {
     return parentMap;
 }
 
-function countIndirectOrbits(orbits) {
-    nbIndirects = 0;
+function countIndirectOrbits(orbits: Orbit[]) {
+    let nbIndirects = 0;
     const parentMap = getParentMap(orbits);
     orbits.forEach((tuple) => {
         nbIndirects += getNbParents(tuple.child, parentMap);
@@ -32,26 +31,30 @@ function countIndirectOrbits(orbits) {
     return nbIndirects;
 }
 
-function getTupleList(input) {
+function getTupleList(input: string[]) {
     return input.map(orbit => {
-            [parent, child] = orbit.split(')');
-            const tuple = {parent, child};
+            const [parent, child] = orbit.split(')');
+            const tuple: Orbit = {parent, child};
             return tuple
         }
     );
 }
 
 // Part 1
-const TESTING = false;
-if (TESTING) {
-    const testInput = require('./testinput');
-    console.log("Part1(Test): " + countIndirectOrbits(getTupleList(testInput)));
-}
-console.log("Part1: " + countIndirectOrbits(getTupleList(input)));
 
-function getParentSequence(child, parentMap) {
+import testInput from './testinput';
+
+if (TESTING) {
+    console.log("Part 1 (Test): " + countIndirectOrbits(getTupleList(testInput)));
+}
+console.log("Part 1: " + countIndirectOrbits(getTupleList(input)));
+
+type Body = string;
+type ParentMap = Map<Body, Body>;
+
+function getParentSequence(child: Body, parentMap: ParentMap) {
     let parent = parentMap.get(child);
-    const result = [];
+    const result: Body[] = [];
     if (parent === undefined) {
         return result;
     }
@@ -60,7 +63,8 @@ function getParentSequence(child, parentMap) {
     return result;
 }
 
-function findClosestSameParent(parents1, parents2) {
+
+function findClosestSameParent(parents1: Body[], parents2: Body[]) {
     const [shortestList, otherList] = parents1.length < parents2.length ? [parents1, parents2] : [parents2, parents1];
     for (let i = shortestList.length - 1; i >= 0; i--) {
         if (shortestList[i] === otherList[i]) {
@@ -70,7 +74,7 @@ function findClosestSameParent(parents1, parents2) {
     throw 'no parent in common!';
 }
 
-function findDistanceBetween(planet1, planet2, input) {
+function findDistanceBetween(planet1: Body, planet2: Body, input: string[]) {
     const parentMap = getParentMap(getTupleList(input));
     const parents1 = getParentSequence(planet1, parentMap);
     const parents2 = getParentSequence(planet2, parentMap);
@@ -79,8 +83,9 @@ function findDistanceBetween(planet1, planet2, input) {
 }
 
 // Part 2
+import testInput2 from './testinput2';
+
 if (TESTING) {
-    const testInput = require('./testinput2');
-    console.log("Part2Test): " + findDistanceBetween('YOU', 'SAN', testInput));
+    console.log("Part 2 Test: " + findDistanceBetween('YOU', 'SAN', testInput2));
 }
-console.log("Part2: " + findDistanceBetween('YOU', 'SAN', input));
+console.log("Part 2: " + findDistanceBetween('YOU', 'SAN', input));

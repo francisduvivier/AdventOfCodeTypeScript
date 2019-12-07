@@ -1,4 +1,4 @@
-function getRawInput() {
+function getRawInput(): string {
     return `1DW)H85
 HCP)993
 77K)LZ8
@@ -1654,4 +1654,4 @@ CQP)JYH
 6BY)X2L`;
 }
 
-module.exports = getRawInput().split(/\n/);
+export const input = getRawInput().split(/\n/);
