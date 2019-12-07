@@ -24,7 +24,19 @@ function getInput() {
     return input;
 }
 
-export const outputs: number[] = [];
+const outputs: number[] = [];
+let lastNextPos: number = 0;
+
+export function getOutput() {
+    const ouput = outputs[outputs.length - 1];
+    outputs.length = 1;
+    outputs[0] = ouput;
+    return ouput;
+}
+
+export function getNextPos() {
+    return lastNextPos;
+}
 
 function doOutput(arg: number) {
     outputs.push(arg);
@@ -94,14 +106,15 @@ function processOpCode(pos: number, mem: number[]) {
             break;
         case 99:
             nbArgs = NaN;
-            nextPos = -1;
+            operation = () => {
+                nextPos = -1;
+            };
             break;
         default:
             throw `unknown intcode [${mem[pos]}] at pos [${pos}]`
     }
     const addresses = [];
     for (let i = 0; i < nbArgs; i++) {
-
         addresses[i] = mem[(pos + 1 + i)];
     }
     // console.log(`addresses [${addresses}]`);
@@ -109,15 +122,19 @@ function processOpCode(pos: number, mem: number[]) {
     // console.log(`args [${args}]`);
     nextPos = nbArgs >= 0 ? pos + 1 + nbArgs : NaN;
     operation(addresses, args);
-
+    lastNextPos = nextPos;
     return nextPos;
 }
 
-export function runFromMem(mem: number[]) {
-    let instructionPointer = 0;
+export function runFromMem(mem: number[], stopOnOutput?: boolean, startPointer?: number) {
+    let instructionPointer = startPointer || 0;
     while (instructionPointer >= 0 && instructionPointer < mem.length) {
+        const outputLen = outputs.length;
         // console.log(`pointer [${instructionPointer}]`);
         instructionPointer = processOpCode(instructionPointer, mem);
+        if (stopOnOutput && outputLen != outputs.length) {
+            return getOutput();
+        }
     }
     return mem[0];
 }
@@ -131,4 +148,8 @@ export function runIntCodeProgram(modifyableMemory: number[], noun: number, verb
 export function setStdInput(input: number, phase?: number) {
     currInput = input;
     currPhase = phase;
+}// const nbAmps = 5;
+
+export function getHalted() {
+    return lastNextPos == -1;
 }
