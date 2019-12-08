@@ -1,4 +1,7 @@
 // Input
+import {logAndPushSolution} from "../util/SolutionHandler";
+import {sum} from "../util/MapReduce";
+
 const masses: number[] = [
     137857,
     121089,
@@ -101,12 +104,10 @@ const masses: number[] = [
     73691,
     65800
 ];
-import {logAndPushSolution} from "../util/SolutionHandler";
 
 export const solutions: (number | string)[] = [];
 // Part 1
 const calcFuelNoRec = (mass: number) => Math.floor(mass / 3) - 2;
-const sum = (mArray: number[]) => mArray.reduce((first, next) => first + next, 0);
 logAndPushSolution(sum(masses.map(calcFuelNoRec)), solutions);
 
 // Part 2
