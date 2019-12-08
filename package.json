@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "day1": "node day1/solution.js",
+    "day1": "ts-node day1/solution.ts",
     "day2": "node day2/solution.js",
     "day3": "ts-node day3.ts",
-    "day4": "node day4/solution.js",
+    "day4": "ts-node day4/solution.ts",
     "day5": "ts-node day5.ts",
     "day6": "ts-node day6/solution.ts",
     "day7": "ts-node day7.ts",

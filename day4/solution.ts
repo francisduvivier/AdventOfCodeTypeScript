@@ -2,16 +2,16 @@ const inputStart = 240298;
 const inputEnd = 784956;
 
 // It is a six-digit number. -> DONE
-function is6Digits(candidate) {
+function is6Digits(candidate: number) {
     return String(candidate).length === 6;
 }
 
 // Two adjacent digits are the same (like 22 in 122345).
-function hasAPair(candidate) {
+function hasAPair(candidate: string | number) {
     return !!String(candidate).match(/([0-9])\1/);
 }
 
-function digitsOnlyIncrease(candidate) {
+function digitsOnlyIncrease(candidate: number) {
     let numbers = [...String(candidate)].map(numberString => Number(numberString));
     for (let i = 0; i < numbers.length - 1; i++) {
         if (numbers[i] > numbers[i + 1]) {
@@ -35,7 +35,7 @@ for (let candidate = inputStart; candidate <= inputEnd; candidate++) {
 console.log("Part 1: " + nbValid);
 
 // An Elf just remembered one more important detail: the two adjacent matching digits are not part of a larger group of matching digits.
-function hasAPairStrict(candidate) {
+function hasAPairStrict(candidate: number) {
     return hasAPair((String(candidate)).replace(/([0-9])\1\1+/g, 'x'));
 
 }

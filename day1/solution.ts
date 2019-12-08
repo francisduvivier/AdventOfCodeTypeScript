@@ -1,5 +1,5 @@
 // Input
-masses = [
+const masses: number[] = [
     137857,
     121089,
     138217,
@@ -102,13 +102,13 @@ masses = [
     65800
 ];
 // Part 1
-calcFuelNoRec = (mass) => Math.floor(mass / 3) - 2;
-sum = (mArray) => mArray.reduce((first, next) => first + next, 0);
+const calcFuelNoRec = (mass: number) => Math.floor(mass / 3) - 2;
+const sum = (mArray: number[]) => mArray.reduce((first, next) => first + next, 0);
 console.log(sum(masses.map(calcFuelNoRec)));
 
 // Part 2
-function calcFuel(mass) {
-    first = calcFuelNoRec(mass);
+function calcFuel(mass: number): number {
+    let first = calcFuelNoRec(mass);
     if (first <= 0) {
         return 0;
     }
