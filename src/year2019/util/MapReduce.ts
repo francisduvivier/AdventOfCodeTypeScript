@@ -13,3 +13,12 @@ export function sum<T extends Summable>(mArray: T[]): T {
         return <any>first + next;
     });
 }
+
+export function allTruthy(values: any[]): boolean {
+    for (const value of values) {
+        if (!value) {
+            return false;
+        }
+    }
+    return true;
+}
