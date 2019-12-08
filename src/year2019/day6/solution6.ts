@@ -1,3 +1,5 @@
+import {logAndPushSolution} from "../util/SolutionHandler";
+
 const TESTING = false;
 import {input} from './input';
 
@@ -40,14 +42,17 @@ function getTupleList(input: string[]) {
     );
 }
 
-// Part 1
+export const solutions: number[] = [];
 
+// Part 1
 import testInput from './testinput';
 
 if (TESTING) {
     console.log("Part 1 (Test): " + countIndirectOrbits(getTupleList(testInput)));
 }
-console.log("Part 1: " + countIndirectOrbits(getTupleList(input)));
+
+const part1 = countIndirectOrbits(getTupleList(input));
+logAndPushSolution(part1, solutions);
 
 type Body = string;
 type ParentMap = Map<Body, Body>;
@@ -88,4 +93,6 @@ import testInput2 from './testinput2';
 if (TESTING) {
     console.log("Part 2 Test: " + findDistanceBetween('YOU', 'SAN', testInput2));
 }
-console.log("Part 2: " + findDistanceBetween('YOU', 'SAN', input));
+const part2 = findDistanceBetween('YOU', 'SAN', input);
+
+logAndPushSolution(part2, solutions);

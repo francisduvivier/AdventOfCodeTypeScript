@@ -31,10 +31,12 @@ const inputProgram = [
     1, 103, 6, 0,
     99,
     2, 14, 0, 0];
+import {logAndPushSolution} from "../util/SolutionHandler";
 
+export const solutions: number[] = [];
 // Part 1
 const part1Result = IntcodeRunner.runIntCodeProgram([...inputProgram], 12, 2);
-console.log("Part1: " + part1Result);
+logAndPushSolution(part1Result, solutions);
 
 // Part 2
 let part2Result = undefined;
@@ -45,4 +47,4 @@ for (let noun = 0; noun < 100 && part2Result === undefined; noun++) {
         }
     }
 }
-console.log("Part2: " + part2Result);
+logAndPushSolution(part2Result!, solutions);

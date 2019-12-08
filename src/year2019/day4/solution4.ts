@@ -1,3 +1,5 @@
+import {logAndPushSolution} from "../util/SolutionHandler";
+
 const inputStart = 240298;
 const inputEnd = 784956;
 
@@ -21,6 +23,8 @@ function digitsOnlyIncrease(candidate: number) {
     return true;
 }
 
+export const solutions: number[] = [];
+// Part 1
 let nbValid = 0;
 // The value is within the range given in your puzzle input. -> DONE
 for (let candidate = inputStart; candidate <= inputEnd; candidate++) {
@@ -32,7 +36,7 @@ for (let candidate = inputStart; candidate <= inputEnd; candidate++) {
         nbValid++;
     }
 }
-console.log("Part 1: " + nbValid);
+logAndPushSolution(nbValid, solutions);
 
 // An Elf just remembered one more important detail: the two adjacent matching digits are not part of a larger group of matching digits.
 function hasAPairStrict(candidate: number) {
@@ -52,4 +56,5 @@ for (let candidate = inputStart; candidate <= inputEnd; candidate++) {
         nbValidPart2++;
     }
 }
-console.log("Part 2: " + nbValidPart2);
+
+logAndPushSolution(nbValidPart2, solutions);

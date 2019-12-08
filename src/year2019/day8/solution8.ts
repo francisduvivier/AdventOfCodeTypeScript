@@ -57,12 +57,19 @@ function calcFinalColors(layers: number[][]) {
     return pixelBundels.map(calcColor);
 }
 
+export const solutions: number[] = [];
 // Part 1
 const layers = splitIntoLayers(input, w, h);
 const nbZeroDigits = layers.map(layer => calcTimesElem(layer, 0));
 const minZeros = Math.min(...nbZeroDigits);
 const minsZerosIndex = nbZeroDigits.indexOf(minZeros);
-console.log("Part 1: ", calcPart1(layers[minsZerosIndex]));
+const part1 = calcPart1(layers[minsZerosIndex]);
+console.log("Part 1: ", part1);
+solutions.push(part1);
+// Part 2
 console.log("Part 2: ");
-let rowStrings: string[] = splitIntoRows(calcFinalColors(layers), w).map(row => row.reduce((c, n) => c + (n ? '\u25A0' : ' '), ''));
+const part2Colors = calcFinalColors(layers);
+let rowStrings: string[] = splitIntoRows(part2Colors, w).map(row => row.reduce((c, n) => c + (n ? '\u25A0' : ' '), ''));
+const NBCOLORS = 3;
+solutions.push(Number.parseInt(part2Colors.reduce((prev, next) => prev + next, ''), NBCOLORS));
 console.log(rowStrings.join('\n'));

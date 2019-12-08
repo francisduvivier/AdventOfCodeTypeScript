@@ -101,10 +101,13 @@ const masses: number[] = [
     73691,
     65800
 ];
+import {logAndPushSolution} from "../util/SolutionHandler";
+
+export const solutions: (number | string)[] = [];
 // Part 1
 const calcFuelNoRec = (mass: number) => Math.floor(mass / 3) - 2;
 const sum = (mArray: number[]) => mArray.reduce((first, next) => first + next, 0);
-console.log(sum(masses.map(calcFuelNoRec)));
+logAndPushSolution(sum(masses.map(calcFuelNoRec)), solutions);
 
 // Part 2
 function calcFuel(mass: number): number {
@@ -114,5 +117,4 @@ function calcFuel(mass: number): number {
     }
     return first + calcFuel(first);
 }
-
-console.log(sum(masses.map(calcFuel)));
+logAndPushSolution(sum(masses.map(calcFuel)), solutions);
