@@ -46,10 +46,14 @@ function calcColor(layerColorsForPixel: number[]) {
     return TRANSPARANT;
 }
 
-function calcFinalColors(layers: number[][]) {
-    const pixelBundels = layers[0].map((_, index) => {
+function transPose(layers: number[][]) {
+    return layers[0].map((_, index) => {
         return layers.map(layer => layer[index]);
     });
+}
+
+function calcFinalColors(layers: number[][]) {
+    const pixelBundels = transPose(layers);
     return pixelBundels.map(calcColor);
 }
 
