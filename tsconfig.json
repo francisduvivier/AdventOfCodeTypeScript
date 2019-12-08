@@ -10,6 +10,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "noUnusedLocals": true,
-    "allowUnreachableCode": false
+    "allowUnreachableCode": false,
+    "noEmit": true
   }
 }
