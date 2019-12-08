@@ -107,15 +107,15 @@ const masses: number[] = [
 
 export const solutions: (number | string)[] = [];
 // Part 1
-const calcFuelNoRec = (mass: number) => Math.floor(mass / 3) - 2;
-logAndPushSolution(sum(masses.map(calcFuelNoRec)), solutions);
+const calcFuel = (mass: number) => Math.floor(mass / 3) - 2;
+logAndPushSolution(sum(masses.map(calcFuel)), solutions);
 
 // Part 2
-function calcFuel(mass: number): number {
-    let first = calcFuelNoRec(mass);
+function calcFuelRec(mass: number): number {
+    let first = calcFuel(mass);
     if (first <= 0) {
         return 0;
     }
-    return first + calcFuel(first);
+    return first + calcFuelRec(first);
 }
-logAndPushSolution(sum(masses.map(calcFuel)), solutions);
+logAndPushSolution(sum(masses.map(calcFuelRec)), solutions);
