@@ -1,4 +1,3 @@
-
 const w = 25;
 const h = 6;
 import input from './input';
@@ -36,25 +35,15 @@ function splitIntoRows(input: number[], w: number): number[][] {
     return layers;
 }
 
+const TRANSPARANT = 2;
+
 function calcColor(layerColorsForPixel: number[]) {
-    let firstZero = layerColorsForPixel.indexOf(0);
-    let firstOne = layerColorsForPixel.indexOf(1);
-    let firstNonTransparentIndex;
-    if (firstOne !== -1) {
-        if (firstZero !== -1) {
-            firstNonTransparentIndex = Math.min(firstZero, firstOne)
-        } else {
-            firstNonTransparentIndex = firstOne;
-        }
-    } else {
-        if (firstZero !== -1) {
-            firstNonTransparentIndex = firstZero
-        } else {
-            firstNonTransparentIndex = 0;
+    for (let color of layerColorsForPixel) {
+        if (color != TRANSPARANT) {
+            return color;
         }
     }
-
-    return layerColorsForPixel[firstNonTransparentIndex]
+    return TRANSPARANT;
 }
 
 function calcFinalColors(layers: number[][]) {
@@ -71,5 +60,5 @@ const minZeros = Math.min(...nbZeroDigits);
 const minsZerosIndex = nbZeroDigits.indexOf(minZeros);
 console.log("Part 1: ", calcPart1(layers[minsZerosIndex]));
 console.log("Part 2: ");
-let rowStrings : string[]= splitIntoRows(calcFinalColors(layers), w).map(row=>row.reduce((c, n)=> c+(n?'\u25A0':' '), ''));
+let rowStrings: string[] = splitIntoRows(calcFinalColors(layers), w).map(row => row.reduce((c, n) => c + (n ? '\u25A0' : ' '), ''));
 console.log(rowStrings.join('\n'));
