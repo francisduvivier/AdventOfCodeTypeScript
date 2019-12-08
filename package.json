@@ -4,14 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "day1": "ts-node day1/solution.ts",
-    "day2": "ts-node day2/solution",
-    "day3": "ts-node day3.ts",
-    "day4": "ts-node day4/solution.ts",
-    "day5": "ts-node day5.ts",
-    "day6": "ts-node day6/solution.ts",
-    "day7": "ts-node day7.ts",
-    "day8": "ts-node day8.ts"
+    "day1": "ts-node src/year2019/day1/solution1",
+    "day2": "ts-node src/year2019/day2/solution2",
+    "day3": "ts-node src/year2019/day3/solution3",
+    "day4": "ts-node src/year2019/day4/solution4",
+    "day5": "ts-node src/year2019/day5/solution5",
+    "day6": "ts-node src/year2019/day6/solution6",
+    "day7": "ts-node src/year2019/day7/solution7",
+    "day8": "ts-node src/year2019/day8/solution8",
+    "z": "echo 'last script placeholder without comma'"
   },
   "author": "",
   "license": "ISC",

@@ -1,7 +1,7 @@
 
 const w = 25;
 const h = 6;
-import input from './day8/input';
+import input from './input';
 
 function calcTimesElem(someArray: number[], searchElem: number) {
     return someArray.reduce((curr, nb) => nb == searchElem ? curr + 1 : curr, 0);

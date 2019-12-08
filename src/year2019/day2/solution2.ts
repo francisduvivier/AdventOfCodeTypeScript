@@ -1,5 +1,5 @@
 // Input
-import {IntcodeRunner} from "./intcode/IntcodeRunner";
+import {IntcodeRunner} from "../intcode/IntcodeRunner";
 
 const inputProgram = [
     1, 0, 0, 3,

@@ -139,7 +139,7 @@ export class IntcodeRunner {
 
     static runFromMem(mem: number[], startPointer?: number) {
         const intcodeProgram = new IntcodeRunner(mem);
-        intcodeProgram.run(startPointer);
+        return intcodeProgram.run(startPointer);
     }
 
     static runIntCodeProgram(modifyableMemory: number[], noun: number, verb: number) {
