@@ -22,3 +22,7 @@ export function allTruthy(values: any[]): boolean {
     }
     return true;
 }
+
+export function calcTimesElem(someArray: number[], searchElem: number) {
+    return someArray.reduce((curr, nb) => nb == searchElem ? curr + 1 : curr, 0);
+}

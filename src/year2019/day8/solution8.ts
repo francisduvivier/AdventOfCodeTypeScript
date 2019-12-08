@@ -1,10 +1,8 @@
-const w = 25;
-const h = 6;
+import {calcTimesElem, sumFrom} from "../util/MapReduce";
 import input from './input';
 
-function calcTimesElem(someArray: number[], searchElem: number) {
-    return someArray.reduce((curr, nb) => nb == searchElem ? curr + 1 : curr, 0);
-}
+const w = 25;
+const h = 6;
 
 function calcPart1(layerWithLeastZeros: number[]) {
     const nb1s = calcTimesElem(layerWithLeastZeros, 1);
@@ -69,7 +67,12 @@ solutions.push(part1);
 // Part 2
 console.log("Part 2: ");
 const part2Colors = calcFinalColors(layers);
-let rowStrings: string[] = splitIntoRows(part2Colors, w).map(row => row.reduce((c, n) => c + (n ? '\u25A0' : ' '), ''));
+
+function loggable(str: string) {
+    return str.replace(/1/g, '\u25A0').replace(/0/g, ' ');
+}
+
+let rowStrings: string[] = splitIntoRows(part2Colors, w).map(row => sumFrom(row, '')).map(loggable);
 const NBCOLORS = 3;
-solutions.push(Number.parseInt(part2Colors.reduce((prev, next) => prev + next, ''), NBCOLORS));
+solutions.push(Number.parseInt(sumFrom(part2Colors, ''), NBCOLORS));
 console.log(rowStrings.join('\n'));
