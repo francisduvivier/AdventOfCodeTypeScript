@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "day1": "ts-node day1/solution.ts",
-    "day2": "node day2/solution.js",
+    "day2": "ts-node day2/solution",
     "day3": "ts-node day3.ts",
     "day4": "ts-node day4/solution.ts",
     "day5": "ts-node day5.ts",

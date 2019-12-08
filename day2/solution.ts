@@ -1,4 +1,6 @@
 // Input
+import {IntcodeRunner} from "./intcode/IntcodeRunner";
+
 const inputProgram = [
     1, 0, 0, 3,
     1, 1, 2, 3,
@@ -30,59 +32,15 @@ const inputProgram = [
     99,
     2, 14, 0, 0];
 
-function processOpCode(pos, mem) {
-    const opCode = mem[pos];
-    let nbArgs = 0;
-    let operation = () => {
-    };
-    switch (opCode) {
-        case 1:
-            nbArgs = 3;
-            operation = (addrss) => {
-                mem[addrss[2]] = mem[addrss[0]] + mem[addrss[1]];
-            };
-            break;
-        case 2:
-            nbArgs = 3;
-            operation = (addrss) => {
-                mem[addrss[2]] = mem[addrss[0]] * mem[addrss[1]];
-            };
-            break;
-        case 99:
-            nbArgs = NaN;
-            break;
-        default:
-            throw `unknown intcode [${mem[pos]}] at pos [${pos}]`
-    }
-    const addresses = [];
-    for (let i = 0; i <= nbArgs; i++) {
-        addresses[i] = mem[pos + 1 + i];
-    }
-    operation(addresses);
-    const nextPos = nbArgs >= 0 ? pos + 1 + nbArgs : NaN;
-    return nextPos;
-}
-
-function runIntCodeProgram(mem, noun, verb) {
-    mem[1] = noun;
-    mem[2] = verb;
-    let instructionPointer = 0;
-    while (instructionPointer >= 0 && instructionPointer < mem.length) {
-        instructionPointer = processOpCode(instructionPointer, mem);
-    }
-    return mem[0];
-}
-
 // Part 1
-
-const part1Result = runIntCodeProgram([...inputProgram], 12, 2);
+const part1Result = IntcodeRunner.runIntCodeProgram([...inputProgram], 12, 2);
 console.log("Part1: " + part1Result);
 
 // Part 2
 let part2Result = undefined;
 for (let noun = 0; noun < 100 && part2Result === undefined; noun++) {
     for (let verb = 0; verb < 100 && part2Result === undefined; verb++) {
-        if (runIntCodeProgram([...inputProgram], noun, verb) === 19690720) {
+        if (IntcodeRunner.runIntCodeProgram([...inputProgram], noun, verb) === 19690720) {
             part2Result = 100 * noun + verb;
         }
     }
