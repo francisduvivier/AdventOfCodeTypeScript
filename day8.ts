@@ -1,3 +1,4 @@
+
 const w = 25;
 const h = 6;
 import input from './day8/input';
@@ -70,4 +71,5 @@ const minZeros = Math.min(...nbZeroDigits);
 const minsZerosIndex = nbZeroDigits.indexOf(minZeros);
 console.log("Part 1: ", calcPart1(layers[minsZerosIndex]));
 console.log("Part 2: ");
-console.log(splitIntoRows(calcFinalColors(layers), w).map(row=>row.reduce((c,n)=> c+(n||' '), '')));
+let rowStrings : string[]= splitIntoRows(calcFinalColors(layers), w).map(row=>row.reduce((c, n)=> c+(n?'\u25A0':' '), ''));
+console.log(rowStrings.join('\n'));
