@@ -4,9 +4,11 @@ import input from './input';
 const w = 25;
 const h = 6;
 
-function calcPart1(layerWithLeastZeros: number[]) {
-    const nb1s = calcTimesElem(layerWithLeastZeros, 1);
-    const nb2s = calcTimesElem(layerWithLeastZeros, 2);
+function calcPart1(layers: number[][]) {
+    const nbZeroDigits = layers.map(layer => calcTimesElem(layer, 0));
+    const minsZerosIndex = nbZeroDigits.indexOf(Math.min(...nbZeroDigits));
+    const nb1s = calcTimesElem(layers[minsZerosIndex], 1);
+    const nb2s = calcTimesElem(layers[minsZerosIndex], 2);
     return nb1s * nb2s;
 }
 
@@ -58,10 +60,8 @@ function calcFinalColors(layers: number[][]) {
 export const solutions: number[] = [];
 // Part 1
 const layers = splitIntoLayers(input, w, h);
-const nbZeroDigits = layers.map(layer => calcTimesElem(layer, 0));
-const minZeros = Math.min(...nbZeroDigits);
-const minsZerosIndex = nbZeroDigits.indexOf(minZeros);
-const part1 = calcPart1(layers[minsZerosIndex]);
+
+const part1 = calcPart1(layers);
 console.log("Part 1: ", part1);
 solutions.push(part1);
 // Part 2
