@@ -1,11 +1,28 @@
-const IMMEDIATE_MODE = 1;
+const enum MODELETTER {
+    POSITION_MODE = 0,
+    IMMEDIATE_MODE = 1,
+    RELATIVE_MODE = 2,
+}
 
-function getArgs(mem: number[], addresses: number[], modesString: string) {
+function toModeLetter(letter: string): MODELETTER {
+    let modeNumber = Number(letter);
+    if (modeNumber < 0 || modeNumber > 2) {
+        throw 'invalide modeletter ' + letter;
+    }
+    return modeNumber;
+}
+
+function getModeLettersLtoR(modesString: string): MODELETTER[] {
+    return [...modesString].reverse().map(toModeLetter);
+}
+
+function getArgs(mem: number[], addresses: number[], modeLettersLeftToRight: MODELETTER[], relativeBase: number) {
     const args = [];
-    const modeLetters = [...modesString].reverse();
     for (let i = 0; i < addresses.length; i++) {
-        if (modeLetters[i] === String(IMMEDIATE_MODE)) {
+        if (modeLettersLeftToRight[i] === MODELETTER.IMMEDIATE_MODE) {
             args[i] = addresses[i]
+        } else if (modeLettersLeftToRight[i] === MODELETTER.RELATIVE_MODE) {
+            args[i] = mem[addresses[i] + relativeBase]
         } else {
             args[i] = mem[addresses[i]]
         }
@@ -15,6 +32,8 @@ function getArgs(mem: number[], addresses: number[], modesString: string) {
 }
 
 export class IntcodeRunner {
+    private relativeBase: number = 0;
+
     constructor(private readonly mem: number[], queuedInput?: number[]) {
         if (queuedInput !== undefined) {
             this.queueInput(...queuedInput);
@@ -39,11 +58,16 @@ export class IntcodeRunner {
         return output;
     }
 
+    getAllOutput(): number[] {
+        return this.outputs.splice(0);
+    }
+
     getNextPos() {
         return this.lastNextPos;
     }
 
     doOutput(arg: number) {
+        // console.log(arg);
         this.outputs.push(arg);
     }
 
@@ -115,6 +139,12 @@ export class IntcodeRunner {
                     this.mem[addrss[2]] = args[0] === args[1] ? 1 : 0;
                 };
                 break;
+            case 9:
+                nbArgs = 1;
+                operation = (addrss, args) => {
+                    this.relativeBase += args[0];
+                };
+                break;
             case 99:
                 nbArgs = NaN;
                 operation = () => {
@@ -125,11 +155,15 @@ export class IntcodeRunner {
                 throw `unknown intcode [${this.mem[pos]}] at pos [${pos}]`
         }
         const addresses = [];
+        const modeLettersLtoR = getModeLettersLtoR(modesString);
         for (let i = 0; i < nbArgs; i++) {
             addresses[i] = this.mem[(pos + 1 + i)];
+            if (modeLettersLtoR[i] === MODELETTER.RELATIVE_MODE) {
+                addresses[i] += this.relativeBase;
+            }
         }
         // console.log(`addresses [${addresses}]`);
-        const args = getArgs(this.mem, addresses, modesString);
+        const args = getArgs(this.mem, addresses, modeLettersLtoR, this.relativeBase);
         // console.log(`args [${args}]`);
         nextPos = nbArgs >= 0 ? pos + 1 + nbArgs : NaN;
         operation(addresses, args);
