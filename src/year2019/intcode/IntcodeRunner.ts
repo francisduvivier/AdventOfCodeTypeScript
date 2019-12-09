@@ -16,15 +16,13 @@ function getModeLettersLtoR(modesString: string): MODELETTER[] {
     return [...modesString].reverse().map(toModeLetter);
 }
 
-function getArgs(mem: number[], addresses: number[], modeLettersLeftToRight: MODELETTER[], relativeBase: number) {
+function getArgs(mem: number[], addresses: number[], modeLettersLeftToRight: MODELETTER[]) {
     const args = [];
     for (let i = 0; i < addresses.length; i++) {
         if (modeLettersLeftToRight[i] === MODELETTER.IMMEDIATE_MODE) {
-            args[i] = addresses[i]
-        } else if (modeLettersLeftToRight[i] === MODELETTER.RELATIVE_MODE) {
-            args[i] = mem[addresses[i] + relativeBase]
+            args[i] = addresses[i] || 0
         } else {
-            args[i] = mem[addresses[i]]
+            args[i] = mem[addresses[i]] || 0
         }
     }
 
@@ -67,7 +65,6 @@ export class IntcodeRunner {
     }
 
     doOutput(arg: number) {
-        // console.log(arg);
         this.outputs.push(arg);
     }
 
@@ -163,7 +160,7 @@ export class IntcodeRunner {
             }
         }
         // console.log(`addresses [${addresses}]`);
-        const args = getArgs(this.mem, addresses, modeLettersLtoR, this.relativeBase);
+        const args = getArgs(this.mem, addresses, modeLettersLtoR);
         // console.log(`args [${args}]`);
         nextPos = nbArgs >= 0 ? pos + 1 + nbArgs : NaN;
         operation(addresses, args);
