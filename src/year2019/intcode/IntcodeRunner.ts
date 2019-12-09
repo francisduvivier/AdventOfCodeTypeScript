@@ -15,7 +15,10 @@ function getArgs(mem: number[], addresses: number[], modesString: string) {
 }
 
 export class IntcodeRunner {
-    constructor(private readonly mem: number[]) {
+    constructor(private readonly mem: number[], queuedInput?: number[]) {
+        if (queuedInput !== undefined) {
+            this.queueInput(...queuedInput);
+        }
     }
 
     private readonly queuedInput: number[] = [];
