@@ -1,13 +1,10 @@
 import {logAndPushSolution} from "../util/SolutionHandler";
+import {hasNbDigits} from "../util/Math";
 
 const inputStart = 240298;
 const inputEnd = 784956;
 
 // It is a six-digit number. -> DONE
-function is6Digits(candidate: number) {
-    return String(candidate).length === 6;
-}
-
 // Two adjacent digits are the same (like 22 in 122345).
 function hasAPair(candidate: string | number) {
     return !!String(candidate).match(/([0-9])\1/);
@@ -29,7 +26,7 @@ let nbValid = 0;
 // The value is within the range given in your puzzle input. -> DONE
 for (let candidate = inputStart; candidate <= inputEnd; candidate++) {
     if (
-        is6Digits(candidate)
+        hasNbDigits(candidate, 6)
         && hasAPair(candidate)
         && digitsOnlyIncrease(candidate)
     ) {
@@ -49,7 +46,7 @@ let nbValidPart2 = 0;
 // The value is within the range given in your puzzle input. -> DONE
 for (let candidate = inputStart; candidate <= inputEnd; candidate++) {
     if (
-        is6Digits(candidate)
+        hasNbDigits(candidate, 6)
         && hasAPairStrict(candidate)
         && digitsOnlyIncrease(candidate)
     ) {

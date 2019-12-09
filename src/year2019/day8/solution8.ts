@@ -1,5 +1,6 @@
 import {calcTimesElem, sumFrom} from "../util/MapReduce";
 import input from './input';
+import {logAndPushSolution} from "../util/SolutionHandler";
 
 const w = 25;
 const h = 6;
@@ -62,8 +63,7 @@ export const solutions: number[] = [];
 const layers = splitIntoLayers(input, w, h);
 
 const part1 = calcPart1(layers);
-console.log("Part 1: ", part1);
-solutions.push(part1);
+logAndPushSolution(part1, solutions);
 // Part 2
 console.log("Part 2: ");
 const part2Colors = calcFinalColors(layers);

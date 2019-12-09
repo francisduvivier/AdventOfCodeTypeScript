@@ -39,3 +39,9 @@ console.log('\nDay 8');
 import {solutions as day8} from './day8/solution8';
 
 assert.deepEqual(day8, [1905, Number('5.5040855662296463e+70')]);
+
+
+console.log('\nDay 9');
+import {solutions as day9} from './day9/solution9';
+
+assert.deepEqual(day9, [3497884671, 46470]);
