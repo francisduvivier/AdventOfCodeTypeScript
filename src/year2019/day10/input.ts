@@ -3,6 +3,8 @@ export const enum PLetter {
     EMPTY = '.'
 }
 
+export type Solution = { col: number, row: number, friends: number }
+
 export const input: PLetter[][] =
     `#..#....#...#.#..#.......##.#.####
 #......#..#.#..####.....#..#...##.
@@ -38,6 +40,28 @@ export const input: PLetter[][] =
 .####.##...#.......####..#....##..
     .#.#.......#......#.##..##.#.#..##
 ......##.....##...##.##...##......`.split('\n').map(row => [...row.trim()] as PLetter[]);
+export const testInput2 = `#.#...#.#.
+.###....#.
+.#....#...
+##.#.#.#.#
+....#.#.#.
+.##..###.#
+..#...##..
+..##....##
+......#...
+.####.###.`.split('\n').map(row => [...row.trim()] as PLetter[]);
+export const testsolution2: Solution = {col: 1, row: 2, friends: 35};
+export const testInput3 = `.#..#..###
+####.###.#
+....###.#.
+..###.##.#
+##.##.#.#.
+....###..#
+..#.#..#.#
+#..#.#.###
+.##...##.#
+.....#.#..`.split('\n').map(row => [...row.trim()] as PLetter[]);
+export const testsolution3: Solution = {col: 6, row: 3, friends: 41};
 
 export const testInput1 = `......#.#.
 #..#.#....
@@ -69,3 +93,9 @@ export const testinput4: PLetter[][] = `.#..##.###...#######
 .#.#.###########.###
 #.#.#.#####.####.###
 ###.##.####.##.#..##`.split('\n').map(row => [...row.trim()] as PLetter[]);
+
+// const testInput5 =`.#....#####...#..
+// ##...##.#####..##
+// ##...#...#.#####.
+// ..#.....X...###..
+// ..#.#.....#....##`.split('\n').map(row => [...row.trim()] as PLetter[]);
