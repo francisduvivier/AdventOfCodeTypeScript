@@ -136,7 +136,7 @@ function findMostVisibleAsteroidDist(input: PLetter[][]): number {
     return findMostVisibleAsteroid(input)[0].solution.friends;
 }
 
-const solutions: number[] = [];
+export const solutions: number[] = [];
 findMostVisibleAsteroid(testInput1);
 assert.deepEqual(findMostVisibleAsteroid(testInput1)[0].solution, {...new Point(8, 5).solution, friends: 33});
 assert.deepEqual(findMostVisibleAsteroid(testInput2)[0].solution, testsolution2);
