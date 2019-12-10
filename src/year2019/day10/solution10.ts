@@ -1,16 +1,6 @@
-import {
-    input,
-    PLetter,
-    Solution,
-    testInput1,
-    testInput2,
-    testInput3,
-    testinput4,
-    testsolution2,
-    testsolution3
-} from "./input";
+import {input, PLetter, Solution, testInput1} from "./input";
 import {logAndPushSolution} from "../util/SolutionHandler";
-import * as assert from "assert";
+import {runTests} from "./tests";
 
 function isRound(val: number, precision = 4) {
     return Math.round(val * Math.pow(10, precision)) === Math.round(val) * Math.pow(10, precision);
@@ -20,13 +10,10 @@ function between(val: number, first: number, second: number) {
     return val >= first && val <= second || val <= first && val >= second;
 }
 
-function same(first: number, second: number, precision = 4) {
+export function same(first: number, second: number, precision = 4) {
     return Math.round(first * Math.pow(10, precision)) === Math.round(second * Math.pow(10, precision));
 }
 
-assert.deepEqual(same(1, 2), false);
-assert.deepEqual(same(5, 5.001), false);
-assert.deepEqual(same(5, 5.00001), true);
 
 class Point {
     readonly col: number;
@@ -114,7 +101,7 @@ function updatePointsWithFriends(pList: Point[], matrix: PLetter[][]): void {
     }
 }
 
-function findMostVisibleAsteroid(input: PLetter[][]): Point[] {
+export function findMostVisibleAsteroid(input: PLetter[][]): Point[] {
     const pList: Point[] = [];
     input.forEach((row, rowIndex) => {
         row.forEach((val, columnIndex) => {
@@ -128,20 +115,16 @@ function findMostVisibleAsteroid(input: PLetter[][]): Point[] {
     return sortedList;
 }
 
-function findMostVisibleAsteroidDist(input: PLetter[][]): number {
+export function findMostVisibleAsteroidDist(input: PLetter[][]): number {
     return findMostVisibleAsteroid(input)[0].solution.friends;
 }
 
 export const solutions: number[] = [];
 findMostVisibleAsteroid(testInput1);
-assert.deepEqual(findMostVisibleAsteroid(testInput1)[0].solution, {...new Point(8, 5).solution, friends: 33});
-assert.deepEqual(findMostVisibleAsteroid(testInput2)[0].solution, testsolution2);
-assert.deepEqual(findMostVisibleAsteroid(testInput3)[0].solution, testsolution3);
-assert.deepEqual(findMostVisibleAsteroid(testinput4)[0].solution, {...new Point(13, 11).solution, friends: 210});
 // Part 1
 logAndPushSolution(findMostVisibleAsteroidDist(input), solutions);
 
-function getDestroyOrder(ast: P, other: P, bestPoint: P) {
+export function getDestroyOrder(ast: P, other: P, bestPoint: P) {
     // console.log(` ast [${JSON.stringify(ast)}], other[${JSON.stringify(other)}], bestPoint [${JSON.stringify(bestPoint)}]`);
     const diffRow1 = ast.row - bestPoint.row;
     const diffRow2 = other.row - bestPoint.row;
@@ -163,16 +146,10 @@ function getDestroyOrder(ast: P, other: P, bestPoint: P) {
     }
 }
 
-assert.deepEqual(getDestroyOrder({"col": 11, "row": 13}, {"col": 11, "row": 13}, {"col": 11, "row": 13}), 0)
-assert.deepEqual(getDestroyOrder({"col": 11, "row": 12}, {"col": 11, "row": 13}, {"col": 11, "row": 13}), 0)
-assert.deepEqual(getDestroyOrder({"col": 10, "row": 1}, {"col": 11, "row": 12}, {"col": 11, "row": 13}) < 0, true)
-assert.deepEqual(getDestroyOrder({"col": 11, "row": 12}, {"col": 10, "row": 1}, {"col": 11, "row": 13}) > 0, true)
-
-function findDestroyedAsteroid(matrix: PLetter[][], targetDestroyed: number) {
+export function findDestroyedAsteroid(matrix: PLetter[][], targetDestroyed: number) {
     const updatedMatrix = matrix.map(row => [...row]);
     const pointsWFriends = findMostVisibleAsteroid(updatedMatrix);
     const bestPoint = pointsWFriends[0];
-    // console.log(`bestPoint ${JSON.stringify(bestPoint)} f [${bestPoint.friends.size}]`);
     let nbDestroyed = 0;
     while (bestPoint.friends.size > 0) {
         let sortedDestroyables = [...bestPoint.friends].sort((ast, other) => -1 * getDestroyOrder(ast, other, bestPoint));
@@ -190,23 +167,11 @@ function findDestroyedAsteroid(matrix: PLetter[][], targetDestroyed: number) {
     }
 }
 
-assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 1)!), calcResult({col: 11, row: 12}));
-assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 2)!), calcResult({col: 12, row: 1}));
-assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 3)!), calcResult({col: 12, row: 2}));
-assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 10)!), calcResult({col: 12, row: 8}));
-assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 20)!), calcResult({col: 16, row: 0}));
-assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 50)!), calcResult({col: 16, row: 9}));
-assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 100)!), calcResult({col: 10, row: 16}));
-assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 199)!), calcResult({col: 9, row: 6}));
-assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 200)!), calcResult({col: 8, row: 2}));
-assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 201)!), calcResult({col: 10, row: 9}));
-assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 299)!), calcResult({col: 11, row: 1}));
-assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 200)!), 802);
-
 type P = { col: number; row: number };
 
-function calcResult(solution: P) {
+export function calcResult(solution: P) {
     return 100 * solution.col + solution.row;
 }
 
+runTests();
 logAndPushSolution(calcResult(findDestroyedAsteroid(input, 200)!), solutions);
