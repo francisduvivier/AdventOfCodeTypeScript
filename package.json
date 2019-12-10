@@ -13,6 +13,7 @@
     "day7": "ts-node src/year2019/day7/solution7",
     "day8": "ts-node src/year2019/day8/solution8",
     "day9": "ts-node src/year2019/day9/solution9",
+    "day10": "ts-node src/year2019/day10/solution10",
     "year2109": "ts-node src/year2019",
     "z": "echo 'last script placeholder without comma'"
   },
