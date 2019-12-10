@@ -62,10 +62,6 @@ class Point {
     }
 }
 
-// function round(first: number, precision = 4) {
-//     return Math.round(first * Math.pow(10, precision)) / Math.pow(10, precision);
-// }
-
 function calcHasLineOfSight(p: Point, other: Point, matrix: PLetter[][]): boolean {
     const diffCol = other.col - p.col;
     const diffRow = other.row - p.row;
