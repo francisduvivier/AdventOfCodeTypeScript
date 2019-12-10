@@ -139,16 +139,11 @@ function findMostVisibleAsteroidDist(input: PLetter[][]): number {
 const solutions: number[] = [];
 findMostVisibleAsteroid(testInput1);
 assert.deepEqual(findMostVisibleAsteroid(testInput1)[0].solution, {...new Point(8, 5).solution, friends: 33});
-console.log('test 1 done');
 assert.deepEqual(findMostVisibleAsteroid(testInput2)[0].solution, testsolution2);
-console.log('test 2 done');
 assert.deepEqual(findMostVisibleAsteroid(testInput3)[0].solution, testsolution3);
-console.log('test 2 done');
 assert.deepEqual(findMostVisibleAsteroid(testinput4)[0].solution, {...new Point(13, 11).solution, friends: 210});
-console.log('test 4 done');
 // Part 1
 logAndPushSolution(findMostVisibleAsteroidDist(input), solutions);
-assert.deepEqual(solutions[0], 334);
 
 function getDestroyOrder(ast: P, other: P, bestPoint: P) {
     // console.log(` ast [${JSON.stringify(ast)}], other[${JSON.stringify(other)}], bestPoint [${JSON.stringify(bestPoint)}]`);
@@ -173,12 +168,9 @@ function getDestroyOrder(ast: P, other: P, bestPoint: P) {
 }
 
 assert.deepEqual(getDestroyOrder({"col": 11, "row": 13}, {"col": 11, "row": 13}, {"col": 11, "row": 13}), 0)
-console.log('assert success');
 assert.deepEqual(getDestroyOrder({"col": 11, "row": 12}, {"col": 11, "row": 13}, {"col": 11, "row": 13}), 0)
-console.log('assert success');
 assert.deepEqual(getDestroyOrder({"col": 10, "row": 1}, {"col": 11, "row": 12}, {"col": 11, "row": 13}) < 0, true)
 assert.deepEqual(getDestroyOrder({"col": 11, "row": 12}, {"col": 10, "row": 1}, {"col": 11, "row": 13}) > 0, true)
-console.log('assert success');
 
 function findDestroyedAsteroid(matrix: PLetter[][], targetDestroyed: number) {
     const updatedMatrix = matrix.map(row => [...row]);
@@ -203,29 +195,17 @@ function findDestroyedAsteroid(matrix: PLetter[][], targetDestroyed: number) {
 }
 
 assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 1)!), calcResult({col: 11, row: 12}));
-console.log('ok: ', 1);
 assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 2)!), calcResult({col: 12, row: 1}));
-console.log('ok: ', 2);
 assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 3)!), calcResult({col: 12, row: 2}));
-console.log('ok: ', 3);
 assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 10)!), calcResult({col: 12, row: 8}));
-console.log('ok: ', 10);
 assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 20)!), calcResult({col: 16, row: 0}));
-console.log('ok: ', 20);
 assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 50)!), calcResult({col: 16, row: 9}));
-console.log('ok: ', 50);
 assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 100)!), calcResult({col: 10, row: 16}));
-console.log('ok: ', 100);
 assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 199)!), calcResult({col: 9, row: 6}));
-console.log('ok: ', 199);
 assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 200)!), calcResult({col: 8, row: 2}));
-console.log('ok: ', 200);
 assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 201)!), calcResult({col: 10, row: 9}));
-console.log('ok: ', 201);
 assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 299)!), calcResult({col: 11, row: 1}));
-console.log('ok: ', 299);
 assert.deepEqual(calcResult(findDestroyedAsteroid(testinput4, 200)!), 802);
-console.log('ok: ', 200);
 
 type P = { col: number; row: number };
 

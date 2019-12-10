@@ -17,7 +17,6 @@ assert.deepEqual(hasNbDigits(output, 16), true);
 intcodeRunner = new IntcodeRunner(testInput3, [firstInput]);
 intcodeRunner.run();
 assert.deepEqual(intcodeRunner.getOutput(), 1125899906842624);
-console.log('Tests: success');
 
 export const solutions: number[] = [];
 
