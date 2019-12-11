@@ -1,7 +1,6 @@
 import {IntcodeRunner} from "../intcode/IntcodeRunner";
 import {GridRobot} from "../util/GridRobot";
 import {input} from "./input";
-import * as assert from "assert";
 import {logAndPushSolution} from "../util/SolutionHandler";
 
 export interface IOHandler {
@@ -61,5 +60,3 @@ robot2.paint(COLOR.WHITE);
 new IntcodeRunner(input, [], ioHandler2).run();
 logAndPushSolution(ioHandler2.nbPainted, solutions);
 console.log(robot2.asImage());
-
-assert.deepEqual(solutions, [2211, 248]);

@@ -9,16 +9,22 @@ function pointToKey(p: P): string {
 }
 
 export const BLOCK = '\u2588\u2588';
-const SPACE = '  ';
-export const defaultPaintConverter = (el: any) => {
-    if (typeof el == "object") {
-        return BLOCK;
-    }
-    if (typeof el == "undefined") {
-        return SPACE;
-    }
-    return Number(el) ? BLOCK : SPACE
-};
+export const SPACE = '  ';
+
+export function getPaintFunc(invert = false) {
+    const defaultPaintConverter = (el: any) => {
+        if (typeof el == "object") {
+            return BLOCK;
+        }
+        if (typeof el == "undefined") {
+            return SPACE;
+        }
+        return (invert ? !Number(el) : Number(el)) ? BLOCK : SPACE;
+    };
+    return defaultPaintConverter;
+}
+
+const defaultPaintConverter = getPaintFunc();
 
 export function identity(input: any) {
     return input;
@@ -30,6 +36,16 @@ export class Grid<ELTYPE> {
     private maxRow: number = 0;
     private minCol: number = 0;
     private minRow: number = 0;
+
+    static fromMatrix<E>(matrix: E[][]): Grid<E> {
+        const grid = new Grid<E>();
+        for (let row = 0; row < matrix.length; row++) {
+            for (let col = 0; col < matrix[row].length; col++) {
+                grid.setRc(row, col, matrix[row][col]);
+            }
+        }
+        return grid;
+    }
 
     get(p: P) {
         return this.matrix.get(pointToKey(p));
@@ -89,8 +105,8 @@ export class Grid<ELTYPE> {
 
     bruteForceImage() {
         const splitter = '\n------\n';
-        console.log(splitter + this.asImage());
-        console.log(splitter + this.asImage(el => defaultPaintConverter(el) == BLOCK ? SPACE : BLOCK));
+        console.log(splitter + this.asImage(getPaintFunc(true)));
+        console.log(splitter + this.asImage(getPaintFunc(false)));
         let firstType: any = undefined;
         console.log(splitter + this.asImage((el) => {
             if (el == undefined) {
@@ -119,4 +135,8 @@ export class Grid<ELTYPE> {
     all() {
         return this.matrix.values();
     }
+}
+
+export function flattenPoint(solution: P, maxRowDigits = 2) {
+    return Math.pow(10, maxRowDigits) * solution.col + solution.row;
 }

@@ -1,6 +1,7 @@
 import {input, PLetter, Solution, testInput1} from "./input";
 import {logAndPushSolution} from "../util/SolutionHandler";
 import {runTests} from "./tests";
+import {flattenPoint, P} from "../util/Grid";
 
 function isRound(val: number, precision = 4) {
     return Math.round(val * Math.pow(10, precision)) === Math.round(val) * Math.pow(10, precision);
@@ -167,11 +168,5 @@ export function findDestroyedAsteroid(matrix: PLetter[][], targetDestroyed: numb
     }
 }
 
-export type P = { col: number; row: number };
-
-export function calcResult(solution: P) {
-    return 100 * solution.col + solution.row;
-}
-
 runTests();
-logAndPushSolution(calcResult(findDestroyedAsteroid(input, 200)!), solutions);
+logAndPushSolution(flattenPoint(findDestroyedAsteroid(input, 200)!), solutions);

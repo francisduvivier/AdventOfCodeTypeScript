@@ -1,11 +1,15 @@
 import {calcTimesElem, splitIntoRows, sumFrom, transPose} from "../util/MapReduce";
 import input from './input';
 import {logAndPushSolution} from "../util/SolutionHandler";
+import {Grid} from "../util/Grid";
+import * as assert from "assert";
 
 const w = 25;
 const h = 6;
 
 function calcPart1(layers: number[][]) {
+    const grid = Grid.fromMatrix(layers);
+    layers = grid.asArray() as number[][];
     const nbZeroDigits = layers.map(layer => calcTimesElem(layer, 0));
     const minsZerosIndex = nbZeroDigits.indexOf(Math.min(...nbZeroDigits));
     const nb1s = calcTimesElem(layers[minsZerosIndex], 1);
@@ -43,11 +47,8 @@ logAndPushSolution(part1, solutions);
 console.log("Part 2: ");
 const part2Colors = calcFinalColors(layers);
 
-function loggable(str: string) {
-    return str.replace(/1/g, '\u2588').replace(/0/g, ' ');
-}
-
-let rowStrings: string[] = splitIntoRows(part2Colors, w).map(row => sumFrom(row, '')).map(loggable);
 const NBCOLORS = 3;
 solutions.push(Number.parseInt(sumFrom(part2Colors, ''), NBCOLORS));
-console.log(rowStrings.join('\n'));
+console.log(Grid.fromMatrix(splitIntoRows(part2Colors, w)).asImage());
+
+assert.deepEqual(solutions, [1905, Number('5.5040855662296463e+70')]);
