@@ -139,7 +139,7 @@ class RobotIOHandler implements IOHandler {
     };
 }
 
-const solutions: number[] = [];
+export const solutions: number[] = [];
 
 function runPart1() {
     const robot = new Robot();
