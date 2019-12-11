@@ -8,17 +8,21 @@ function pointToKey(p: P): string {
     return 'r' + p.row + 'c' + p.col;
 }
 
-const BLACK = '\u2588';
-const WHITE = ' ';
-const defaultPaintConverter = (el: any) => {
+export const BLOCK = '\u2588\u2588';
+const SPACE = '  ';
+export const defaultPaintConverter = (el: any) => {
     if (typeof el == "object") {
-        return BLACK;
+        return BLOCK;
     }
     if (typeof el == "undefined") {
-        return WHITE;
+        return SPACE;
     }
-    return Number(el) ? BLACK : WHITE
+    return Number(el) ? BLOCK : SPACE
 };
+
+export function identity(input: any) {
+    return input;
+}
 
 export class Grid<ELTYPE> {
     private matrix: Map<string, ELTYPE | undefined> = new Map<string, ELTYPE | undefined>();
@@ -67,44 +71,48 @@ export class Grid<ELTYPE> {
         return result;
     }
 
-    asImage(converter: (el: ELTYPE | undefined) => string = defaultPaintConverter, flipH = false, flipV = false): string {
-        let asArray1 = this.asArray();
-        if (flipV) {
-            asArray1 = asArray1.reverse();
+    asImage(colorFunc: (
+        el: ELTYPE | undefined) => string = defaultPaintConverter,
+            matrixConverter: (arr: (ELTYPE | undefined)[][]) => (ELTYPE | undefined)[][] = identity,
+            flipH = false,
+            flipV = false
+    ): string {
+        let matrix = this.asArray();
+        if (matrixConverter) {
+            matrix = matrixConverter(matrix);
         }
-        return asArray1.map(arr => (flipV ? arr.reverse() : arr).map(converter).join('')).join('\n');
+        if (flipV) {
+            matrix = matrix.reverse();
+        }
+        return matrix.map(arr => (flipH ? arr.reverse() : arr).map(colorFunc).join('')).join('\n');
     }
 
     bruteForceImage() {
-
         const splitter = '\n------\n';
         console.log(splitter + this.asImage());
-        console.log(splitter + this.asImage((el) => el ? WHITE : BLACK));
-        console.log(splitter + this.asImage((el) => !el ? WHITE : BLACK));
-        console.log(splitter + this.asImage((el) => Number(el) ? WHITE : BLACK));
-        console.log(splitter + this.asImage((el) => !Number(el) ? WHITE : BLACK));
+        console.log(splitter + this.asImage(el => defaultPaintConverter(el) == BLOCK ? SPACE : BLOCK));
         let firstType: any = undefined;
         console.log(splitter + this.asImage((el) => {
             if (el == undefined) {
-                return WHITE
+                return SPACE
             }
             const type = JSON.stringify(el);
             if (firstType === undefined) {
                 firstType = type
             }
-            return (type == firstType) ? WHITE : BLACK
+            return (type == firstType) ? SPACE : BLOCK
         }));
 
         firstType = undefined;
         console.log(splitter + this.asImage((el) => {
             if (el == undefined) {
-                return WHITE
+                return SPACE
             }
             const type = JSON.stringify(el);
             if (firstType == undefined) {
                 firstType = type
             }
-            return (type == firstType) ? BLACK : WHITE
+            return (type == firstType) ? BLOCK : SPACE
         }));
     }
 
