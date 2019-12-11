@@ -1,6 +1,7 @@
 import {calcTimesElem, sumFrom} from "../util/MapReduce";
 import input from './input';
 import {logAndPushSolution} from "../util/SolutionHandler";
+import {transPose} from "../util/Math";
 
 const w = 25;
 const h = 6;
@@ -45,12 +46,6 @@ function calcColor(layerColorsForPixel: number[]) {
         }
     }
     return TRANSPARANT;
-}
-
-function transPose(layers: number[][]) {
-    return layers[0].map((_, index) => {
-        return layers.map(layer => layer[index]);
-    });
 }
 
 function calcFinalColors(layers: number[][]) {
