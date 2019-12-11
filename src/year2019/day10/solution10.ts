@@ -167,7 +167,7 @@ export function findDestroyedAsteroid(matrix: PLetter[][], targetDestroyed: numb
     }
 }
 
-type P = { col: number; row: number };
+export type P = { col: number; row: number };
 
 export function calcResult(solution: P) {
     return 100 * solution.col + solution.row;

@@ -1,3 +1,5 @@
+import {IOHandler} from "../day11/solution11";
+
 const enum MODELETTER {
     POSITION_MODE = 0,
     IMMEDIATE_MODE = 1,
@@ -31,21 +33,35 @@ function getArgs(mem: number[], addresses: number[], modeLettersLeftToRight: MOD
 
 export class IntcodeRunner {
     private relativeBase: number = 0;
+    private readonly ioHandler: IOHandler | undefined;
+    private readonly queuedInput: number[] = [];
+    private readonly outputs: number[] = [];
+    private lastNextPos: number = 0;
 
-    constructor(private readonly mem: number[], queuedInput?: number[]) {
+    constructor(private readonly mem: number[], queuedInput?: number[], ioHandler?: IOHandler) {
+        this.ioHandler = ioHandler;
         if (queuedInput !== undefined) {
             this.queueInput(...queuedInput);
         }
     }
 
-    private readonly queuedInput: number[] = [];
-    private readonly outputs: number[] = [];
-    private lastNextPos: number = 0;
+    static runFromMem(mem: number[], startPointer?: number) {
+        const intcodeProgram = new IntcodeRunner(mem, undefined);
+        return intcodeProgram.run(startPointer);
+    }
 
+    static runIntCodeProgram(modifyableMemory: number[], noun: number, verb: number) {
+        modifyableMemory[1] = noun;
+        modifyableMemory[2] = verb;
+        return IntcodeRunner.runFromMem(modifyableMemory);
+    }
 
     getInput() {
         const input = this.queuedInput[0];
         this.queuedInput.splice(0, 1);
+        if (input === undefined && this.ioHandler) {
+            return this.ioHandler.getInput();
+        }
         return input;
     }
 
@@ -65,6 +81,9 @@ export class IntcodeRunner {
     }
 
     doOutput(arg: number) {
+        if (this.ioHandler) {
+            this.ioHandler.doOutput(arg);
+        }
         this.outputs.push(arg);
     }
 
@@ -169,17 +188,6 @@ export class IntcodeRunner {
         }
         this.lastNextPos = nextPos;
         return nextPos;
-    }
-
-    static runFromMem(mem: number[], startPointer?: number) {
-        const intcodeProgram = new IntcodeRunner(mem);
-        return intcodeProgram.run(startPointer);
-    }
-
-    static runIntCodeProgram(modifyableMemory: number[], noun: number, verb: number) {
-        modifyableMemory[1] = noun;
-        modifyableMemory[2] = verb;
-        return IntcodeRunner.runFromMem(modifyableMemory);
     }
 
     queueInput(...inputs: number[]) {
