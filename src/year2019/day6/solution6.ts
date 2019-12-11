@@ -89,6 +89,7 @@ function findDistanceBetween(planet1: Body, planet2: Body, input: string[]) {
 
 // Part 2
 import testInput2 from './testinput2';
+import * as assert from "assert";
 
 if (TESTING) {
     console.log("Part 2 Test: " + findDistanceBetween('YOU', 'SAN', testInput2));
@@ -96,3 +97,5 @@ if (TESTING) {
 const part2 = findDistanceBetween('YOU', 'SAN', input);
 
 logAndPushSolution(part2, solutions);
+
+assert.deepEqual(solutions, [295936, 457]);

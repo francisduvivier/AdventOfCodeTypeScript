@@ -75,3 +75,5 @@ if (TEST) {
 }
 const [part2] = calcHighestThrust(input, part2Phases);
 logAndPushSolution(part2, solutions);
+
+assert.deepEqual(solutions, [11828, 1714298]);

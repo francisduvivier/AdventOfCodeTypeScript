@@ -29,3 +29,4 @@ logAndPushSolution(intcodeRunner.getOutput(), solutions);
 intcodeRunner = new IntcodeRunner(input, [2]);
 intcodeRunner.run();
 logAndPushSolution(intcodeRunner.getOutput(), solutions);
+assert.deepEqual(solutions, [3497884671, 46470]);

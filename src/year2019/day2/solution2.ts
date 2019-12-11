@@ -32,6 +32,7 @@ const inputProgram = [
     99,
     2, 14, 0, 0];
 import {logAndPushSolution} from "../util/SolutionHandler";
+import * as assert from "assert";
 
 export const solutions: number[] = [];
 // Part 1
@@ -48,3 +49,5 @@ for (let noun = 0; noun < 100 && part2Result === undefined; noun++) {
     }
 }
 logAndPushSolution(part2Result!, solutions);
+
+assert.deepEqual(solutions, [3790645, 6577]);

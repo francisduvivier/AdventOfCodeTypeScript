@@ -2,6 +2,7 @@ import {input, PLetter, Solution, testInput1} from "./input";
 import {logAndPushSolution} from "../util/SolutionHandler";
 import {runTests} from "./tests";
 import {flattenPoint, P} from "../util/Grid";
+import * as assert from "assert";
 
 function isRound(val: number, precision = 4) {
     return Math.round(val * Math.pow(10, precision)) === Math.round(val) * Math.pow(10, precision);
@@ -170,3 +171,4 @@ export function findDestroyedAsteroid(matrix: PLetter[][], targetDestroyed: numb
 
 runTests();
 logAndPushSolution(flattenPoint(findDestroyedAsteroid(input, 200)!), solutions);
+assert.deepEqual(solutions, [334, 1119]);

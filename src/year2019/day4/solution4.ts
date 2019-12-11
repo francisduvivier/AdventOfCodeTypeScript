@@ -1,5 +1,6 @@
 import {logAndPushSolution} from "../util/SolutionHandler";
 import {hasNbDigits} from "../util/Math";
+import * as assert from "assert";
 
 const inputStart = 240298;
 const inputEnd = 784956;
@@ -55,3 +56,5 @@ for (let candidate = inputStart; candidate <= inputEnd; candidate++) {
 }
 
 logAndPushSolution(nbValidPart2, solutions);
+
+assert.deepEqual(solutions, [1150, 748]);

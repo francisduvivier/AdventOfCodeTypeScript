@@ -1,6 +1,7 @@
 // Input
 import {logAndPushSolution} from "../util/SolutionHandler";
 import {sum} from "../util/MapReduce";
+import * as assert from "assert";
 
 const masses: number[] = [
     137857,
@@ -119,3 +120,5 @@ function calcFuelRec(mass: number): number {
     return first + calcFuelRec(first);
 }
 logAndPushSolution(sum(masses.map(calcFuelRec)), solutions);
+
+assert.deepEqual(solutions, [3198599, 4795042]);
