@@ -9,7 +9,7 @@ import {solutions as day7} from './day7/solution7';
 import {solutions as day8} from './day8/solution8';
 import {solutions as day9} from './day9/solution9';
 import {solutions as day10} from './day10/solution10';
-import {solutions as day11} from './day11/solution11';
+import './day11/solution11';
 
 assert.deepEqual(day1, [3198599, 4795042]);
 
@@ -31,4 +31,3 @@ assert.deepEqual(day9, [3497884671, 46470]);
 
 assert.deepEqual(day10, [334, 1119]);
 
-assert.deepEqual(day11, [2211, 249]);

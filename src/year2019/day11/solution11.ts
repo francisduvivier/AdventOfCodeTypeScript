@@ -158,3 +158,4 @@ robot2.paint(COLOR.WHITE);
 new IntcodeRunner(input, [], ioHandler2).run();
 logAndPushSolution(robot2.nbPainted, solutions);
 console.log(robot2.showGrid());
+assert.deepEqual(solutions, [2211, 248]);
