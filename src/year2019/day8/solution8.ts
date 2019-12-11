@@ -1,7 +1,6 @@
-import {calcTimesElem, sumFrom} from "../util/MapReduce";
+import {calcTimesElem, splitIntoRows, sumFrom, transPose} from "../util/MapReduce";
 import input from './input';
 import {logAndPushSolution} from "../util/SolutionHandler";
-import {transPose} from "../util/Math";
 
 const w = 25;
 const h = 6;
@@ -14,27 +13,8 @@ function calcPart1(layers: number[][]) {
     return nb1s * nb2s;
 }
 
-function cp(input: number[]) {
-    input = [...input];
-    return input;
-}
-
 function splitIntoLayers(input: number[], w: number, h: number): number[][] {
     return splitIntoRows(input, w * h);
-}
-
-function splitIntoRows(input: number[], w: number): number[][] {
-    input = cp(input);
-    const layerSize = w;
-    const nbLayers = input.length / (layerSize);
-    if (nbLayers !== Math.round(nbLayers)) {
-        console.error('layers is not round!', nbLayers);
-    }
-    const layers: number[][] = [];
-    for (let i = 0; i < nbLayers; i++) {
-        layers.push(input.splice(0, layerSize));
-    }
-    return layers;
 }
 
 const TRANSPARANT = 2;

@@ -26,3 +26,23 @@ export function allTruthy(values: any[]): boolean {
 export function calcTimesElem(someArray: number[], searchElem: number) {
     return someArray.reduce((curr, nb) => nb == searchElem ? curr + 1 : curr, 0);
 }
+
+export function transPose<T>(layers: T[][]): T[][] {
+    return layers[0].map((_, index) => {
+        return layers.map(layer => layer[index]);
+    });
+}
+
+export function splitIntoRows(input: number[], w: number): number[][] {
+    input = [...input];
+    const layerSize = w;
+    const nbLayers = input.length / (layerSize);
+    if (nbLayers !== Math.round(nbLayers)) {
+        console.error('layers is not round!', nbLayers);
+    }
+    const layers: number[][] = [];
+    for (let i = 0; i < nbLayers; i++) {
+        layers.push(input.splice(0, layerSize));
+    }
+    return layers;
+}
