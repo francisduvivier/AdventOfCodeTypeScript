@@ -69,7 +69,7 @@ console.log("Part 2: ");
 const part2Colors = calcFinalColors(layers);
 
 function loggable(str: string) {
-    return str.replace(/1/g, '\u25A0').replace(/0/g, ' ');
+    return str.replace(/1/g, '\u2588').replace(/0/g, ' ');
 }
 
 let rowStrings: string[] = splitIntoRows(part2Colors, w).map(row => sumFrom(row, '')).map(loggable);
