@@ -1,11 +1,20 @@
 export type P = { row: number; col: number };
+export type P3 = P & { z: number };
 
 export function P(row: number, col: number): P {
     return {col, row}
 }
 
+export function P3(row: number, col: number, z: number): P3 {
+    return {col, row, z}
+}
+
 function pointToKey(p: P): string {
     return 'r' + p.row + 'c' + p.col;
+}
+
+export function point3ToKey(p: P3): string {
+    return 'r' + p.row + 'c' + p.col + 'z' + p.z
 }
 
 export const BLOCK = '\u2588\u2588';
