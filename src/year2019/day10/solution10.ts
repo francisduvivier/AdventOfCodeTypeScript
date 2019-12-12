@@ -3,17 +3,10 @@ import {logAndPushSolution} from "../util/SolutionHandler";
 import {runTests} from "./tests";
 import {flattenPoint, P} from "../util/Grid";
 import * as assert from "assert";
-
-function isRound(val: number, precision = 4) {
-    return Math.round(val * Math.pow(10, precision)) === Math.round(val) * Math.pow(10, precision);
-}
+import {isRound, same} from "../util/Math";
 
 function between(val: number, first: number, second: number) {
     return val >= first && val <= second || val <= first && val >= second;
-}
-
-export function same(first: number, second: number, precision = 4) {
-    return Math.round(first * Math.pow(10, precision)) === Math.round(second * Math.pow(10, precision));
 }
 
 

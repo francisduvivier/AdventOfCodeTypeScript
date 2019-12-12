@@ -1,7 +1,8 @@
 import * as assert from "assert";
 import {testInput1, testInput2, testInput3, testinput4, testsolution2, testsolution3} from "./input";
-import {findDestroyedAsteroid, findMostVisibleAsteroid, getDestroyOrder, same} from "./solution10";
+import {findDestroyedAsteroid, findMostVisibleAsteroid, getDestroyOrder} from "./solution10";
 import {flattenPoint} from "../util/Grid";
+import {same} from "../util/Math";
 
 export function runTests() {
     assert.deepEqual(same(1, 2), false);
