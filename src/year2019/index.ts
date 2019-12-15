@@ -9,5 +9,6 @@ import './day8/solution8';
 import './day9/solution9';
 import './day10/solution10';
 import './day11/solution11';
-import './day11/solution12';
-import './day11/solution13';
+import './day12/solution12';
+import './day13/solution13';
+import './day14/solution14';
