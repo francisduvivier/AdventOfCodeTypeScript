@@ -63,66 +63,44 @@ logAndPushSolution(part1(input).slice(0, 8), solutions);
 
 type SIGN = 0 | 1 | -1;
 
-function getSumRec(sumMap: number[][], absIndex: number, endIndex: number, fullInputLength: number): number {
-    // if (!0) {
-    //     return sum(sumMap[0].slice(absIndex, endIndex + 1))
-    // }
+function updateSumList(sumMap: number[][], startIndex: number, endIndex: number) {
+    // console.assert(startIndex <= endIndex, '' + startIndex + ', ' + endIndex);
+    const startSumList = sumMap[startIndex];
+    // console.log(startIndex, endIndex);
+    // console.assert(startSumList !== undefined, '' + startIndex + ', ' + endIndex);
+    if (startSumList[endIndex] !== undefined) {
+        // console.log('return');
+        return;
+    }
+    let firstNextSmallerIndex = startSumList.length;
+    if (firstNextSmallerIndex > endIndex) {
+        firstNextSmallerIndex = endIndex;
+        while (startSumList[firstNextSmallerIndex - 1] == undefined) {
+            firstNextSmallerIndex--;
+        }
+    }
+    updateSumList(sumMap, firstNextSmallerIndex, endIndex);
+    const nextResult = sumMap[firstNextSmallerIndex][endIndex];
+    // console.assert(!isNaN(nextResult) || nextResult == undefined, 'bad result', startIndex, endIndex, firstNextSmallerIndex)
+    startSumList[endIndex] = startSumList[firstNextSmallerIndex - 1] + nextResult;
+}
+
+function getSumRec(sumMap: number[][], absStartIndex: number, endIndex: number, fullInputLength: number): number {
+
     if (endIndex >= fullInputLength) {
         throw 'bad endindex ' + endIndex
     }
-    const sumSize = endIndex - absIndex + 1;
-    if (sumSize <= 0) {
-        console.trace()
-        throw 'invalide state sumSize<0: ' + endIndex + ', ' + absIndex;
-    } else if (sumSize == 1) {
-        return sumMap[0][absIndex];
-    }
-    let sumMapKey = Math.floor(Math.log2(sumSize));
-    const sumList = sumMap[sumMapKey]!;
-
-
-    let sumListIndex = Math.ceil((absIndex) / (2 ** sumMapKey));
-    let result = sumList[sumListIndex];
-
-    let startAbsIndexOfIndexedSum = sumListIndex * (2 ** sumMapKey);
-    if (startAbsIndexOfIndexedSum >= fullInputLength - 1) {
-        throw 'invalid startAbsIndexOfIndexedSum> fullInputLength-1 : ' + startAbsIndexOfIndexedSum;
-    }
-    let partAfter = 0;
-    let lastAbsIndexOfSum = startAbsIndexOfIndexedSum + (2 ** sumMapKey) - 1;
-    lastAbsIndexOfSum = Math.min(fullInputLength - 1, lastAbsIndexOfSum);
-    if (lastAbsIndexOfSum < endIndex) {
-        partAfter = getSumRec(sumMap, lastAbsIndexOfSum + 1, endIndex, fullInputLength);
-    } else if (lastAbsIndexOfSum > endIndex) {
-        partAfter = -getSumRec(sumMap, endIndex + 1, lastAbsIndexOfSum, fullInputLength);
-    }
-    let partBefore = 0;
-    if (startAbsIndexOfIndexedSum != absIndex) {
-        partBefore = getSumRec(sumMap, absIndex, startAbsIndexOfIndexedSum - 1, fullInputLength);
-    }
-    return result + partBefore + partAfter;
+    updateSumList(sumMap, absStartIndex, endIndex);
+    return sumMap[absStartIndex][endIndex];
 
 }
 
 function getSumMap(currInput: number[]) {
-    const sumMap: number[][] = [];
-    sumMap[0] = [...currInput];
-    for (let level = 1; sumMap[level - 1].length > 1; level++) {
-        sumMap[level] = sumMap[level - 1].reduce((prev, curr, index) => {
-            if (index % 2 == 0) {
-                if (prev.length && isNaN(prev[prev.length - 1])) {
-                    throw 'bad state';
-                }
-                prev.push(curr)
-            } else {
-                if (prev.length && isNaN(prev[prev.length - 1])) {
-                    throw 'bad state';
-                }
-                prev[prev.length - 1] += curr;
-            }
-            return prev;
-        }, [] as number[]);
-    }
+    const sumMap: number[][] = currInput.map((el, index) => {
+        const result: number[] = [];
+        result[index] = el;
+        return result;
+    });
     return sumMap;
 }
 
@@ -175,6 +153,6 @@ function part2(inputNb: string): string {
     return result.slice(msgOffset, msgOffset + 8).join('');
 }
 
+logAndPushSolution(part2(input).slice(0, 8), solutions);
 assert.deepEqual(part2('02935109699940807407585447034323'), '78725270');
 assert.deepEqual(part2('03036732577212944063491565474664'), '84462026');
-logAndPushSolution(part2(input).slice(0, 8), solutions);
