@@ -72,11 +72,10 @@ function getSumRec(sumMap: number[][], absIndex: number, endIndex: number, fullI
     }
     const sumSize = endIndex - absIndex + 1;
     if (sumSize <= 0) {
-        return 0;
+        console.trace()
+        throw 'invalide state sumSize<0: ' + endIndex + ', ' + absIndex;
     } else if (sumSize == 1) {
-        const sumList = sumMap[0];
-        let result = sumList[absIndex];
-        return result;
+        return sumMap[0][absIndex];
     }
     let sumMapKey = Math.floor(Math.log2(sumSize));
     const sumList = sumMap[sumMapKey]!;
@@ -85,16 +84,23 @@ function getSumRec(sumMap: number[][], absIndex: number, endIndex: number, fullI
     let sumListIndex = Math.ceil((absIndex) / (2 ** sumMapKey));
     let result = sumList[sumListIndex];
 
-    let startAbsIndex = sumListIndex * (2 ** sumMapKey);
-
+    let startAbsIndexOfIndexedSum = sumListIndex * (2 ** sumMapKey);
+    if (startAbsIndexOfIndexedSum >= fullInputLength - 1) {
+        throw 'invalid startAbsIndexOfIndexedSum> fullInputLength-1 : ' + startAbsIndexOfIndexedSum;
+    }
     let partAfter = 0;
-    let lastAbsIndexOfSum = startAbsIndex + (2 ** sumMapKey) - 1;
+    let lastAbsIndexOfSum = startAbsIndexOfIndexedSum + (2 ** sumMapKey) - 1;
+    lastAbsIndexOfSum = Math.min(fullInputLength - 1, lastAbsIndexOfSum);
     if (lastAbsIndexOfSum < endIndex) {
         partAfter = getSumRec(sumMap, lastAbsIndexOfSum + 1, endIndex, fullInputLength);
     } else if (lastAbsIndexOfSum > endIndex) {
-        partAfter = -getSumRec(sumMap, endIndex + 1, Math.min(fullInputLength - 1, lastAbsIndexOfSum), fullInputLength);
+        partAfter = -getSumRec(sumMap, endIndex + 1, lastAbsIndexOfSum, fullInputLength);
     }
-    return result + getSumRec(sumMap, absIndex, Math.min(fullInputLength - 1, startAbsIndex - 1), fullInputLength) + partAfter;
+    let partBefore = 0;
+    if (startAbsIndexOfIndexedSum != absIndex) {
+        partBefore = getSumRec(sumMap, absIndex, startAbsIndexOfIndexedSum - 1, fullInputLength);
+    }
+    return result + partBefore + partAfter;
 
 }
 
@@ -117,18 +123,15 @@ function getSumMap(currInput: number[]) {
             return prev;
         }, [] as number[]);
     }
-    // console.log(sumMap);
     return sumMap;
 }
 
 function doFFT(nbPhases: number, unrepeatedStartInput: number[], basePattern: SIGN[], repeatInput = 1) {
     const startDate = Date.now();
     let lastShow: number = Date.now();
-    let lastIForPat: number = 0;
     let currInput = repeat(unrepeatedStartInput, repeatInput);
     const fullInputLength = currInput.length;
-    console.log('fullInputLength', fullInputLength)
-    fullInputLength;
+    console.log('fullInputLength', fullInputLength);
     for (let phase = 0; phase < nbPhases; phase++) {
         const sumMap = getSumMap(currInput);
         repeatInput != 1 && console.log('phase: ' + phase);
@@ -144,19 +147,19 @@ function doFFT(nbPhases: number, unrepeatedStartInput: number[], basePattern: SI
                     throw 'inefficient pattern nb absIndex: ' + absIndex
                 }
             }
-            if (repeatInput != 1) {
-                const currDate = Date.now();
-                if (currDate - lastShow > 1000) {
-                    let timeDiffSinceStart = currDate - startDate;
-                    let millisPerSum = (timeDiffSinceStart) / iForPat;
-                    console.log('did sums ' + (iForPat - lastIForPat), 'left: ' + (fullInputLength - iForPat), 'will take ' + millisPerSum * (fullInputLength - iForPat) / 1000, 'sec');
-                    lastShow = currDate;
-                    lastIForPat = iForPat;
-                }
-            }
+
 
             return Math.abs(sum) % 10
         });
+        if (true && repeatInput != 1) {
+            const currDate = Date.now();
+            if (currDate - lastShow > 1000) {
+                let timeDiffSinceStart = currDate - startDate;
+                let millisPerSum = (timeDiffSinceStart) / (phase + 1);
+                console.log('did phase ', (phase + 1), 'left: ' + (nbPhases - (phase + 1)), 'will take ' + (nbPhases - (phase + 1)) * millisPerSum / 1000, 'sec');
+                lastShow = currDate;
+            }
+        }
     }
     return currInput;
 }
@@ -165,23 +168,13 @@ function part2(inputNb: string): string {
     const msgOffset = Number(inputNb.slice(0, 7));
     const nbPhases = 100;
     const basePattern: SIGN[] = [0, 1, 0, -1];
-    const result = doFFT(nbPhases, inputNb.split('').map(Number), basePattern, 1000);
-    result.splice(msgOffset, 8);
-    return result.join('');
+    const repeatInputTimes = 10001;
+    const result = doFFT(nbPhases, inputNb.split('').map(Number), basePattern, repeatInputTimes);
+    console.log(result.join(''));
+    console.log(result.length, msgOffset, result.slice(msgOffset, msgOffset + 8).join(''), result.slice(msgOffset + 7, msgOffset + 7 + 8).join(''));
+    return result.slice(msgOffset, msgOffset + 8).join('');
 }
 
-export function part3(inputNb: string, times = 2): string {
-    let currInput = repeat(inputNb.split('').map(Number), times);
-    const msgOffset = Number(inputNb.slice(0, 7));
-    const nbPhases = 100;
-    const basePattern: SIGN[] = [0, 1, 0, -1];
-    currInput = doFFT(nbPhases, currInput, basePattern);
-    currInput.splice(msgOffset, 8);
-    return currInput.slice(0, 8).join('');
-}
-
-// for (let times = 1; times <= 1000; times++) {
-//     logAndPushSolution(part3(input, times), solutions)
-// }
+assert.deepEqual(part2('02935109699940807407585447034323'), '78725270');
+assert.deepEqual(part2('03036732577212944063491565474664'), '84462026');
 logAndPushSolution(part2(input).slice(0, 8), solutions);
-assert.deepEqual(part2('03036732577212944063491565474664').slice(0, 8), '84462026');
