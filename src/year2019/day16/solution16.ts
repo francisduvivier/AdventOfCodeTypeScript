@@ -63,44 +63,53 @@ logAndPushSolution(part1(input).slice(0, 8), solutions);
 
 type SIGN = 0 | 1 | -1;
 
-function updateSumList(sumMap: number[][], startIndex: number, endIndex: number) {
-    // console.assert(startIndex <= endIndex, '' + startIndex + ', ' + endIndex);
+type ENDINDEXSUMMAP = { [key: number]: number, length: number };
+
+
+function updateSumList(sumMap: ENDINDEXSUMMAP[], startIndex: number, endIndex: number): number {
+    const DEBUG = false;
+    DEBUG && console.assert(startIndex <= endIndex, '' + startIndex + ', ' + endIndex);
     const startSumList = sumMap[startIndex];
-    // console.log(startIndex, endIndex);
-    // console.assert(startSumList !== undefined, '' + startIndex + ', ' + endIndex);
-    if (startSumList[endIndex] !== undefined) {
-        // console.log('return');
-        return;
+    DEBUG && console.log(startIndex, endIndex);
+    DEBUG && console.assert(startSumList !== undefined, '' + startIndex + ', ' + endIndex);
+    if (startSumList[endToRel(startIndex, endIndex)] !== undefined) {
+        DEBUG && console.log('return');
+        return startSumList[endToRel(startIndex, endIndex)];
     }
-    let firstNextSmallerIndex = startSumList.length;
+    let firstNextSmallerIndex = relToEnd(startIndex, startSumList.length);
     if (firstNextSmallerIndex > endIndex) {
         firstNextSmallerIndex = endIndex;
-        while (startSumList[firstNextSmallerIndex - 1] == undefined) {
+        while (startSumList[endToRel(startIndex, firstNextSmallerIndex - 1)] == undefined) {
             firstNextSmallerIndex--;
         }
+
     }
+    DEBUG && console.log('firstNextSmallerIndex', firstNextSmallerIndex);
     updateSumList(sumMap, firstNextSmallerIndex, endIndex);
-    const nextResult = sumMap[firstNextSmallerIndex][endIndex];
-    // console.assert(!isNaN(nextResult) || nextResult == undefined, 'bad result', startIndex, endIndex, firstNextSmallerIndex)
-    startSumList[endIndex] = startSumList[firstNextSmallerIndex - 1] + nextResult;
+    const nextResult = sumMap[firstNextSmallerIndex][endToRel(firstNextSmallerIndex, endIndex)];
+    DEBUG && console.assert(!isNaN(nextResult), 'bad result', nextResult, startIndex, endIndex, firstNextSmallerIndex, endToRel(firstNextSmallerIndex, endIndex))
+    let startSumListElement = startSumList[endToRel(startIndex, firstNextSmallerIndex - 1)];
+    DEBUG && console.assert(!isNaN(startSumListElement), 'bad result2', startSumListElement, startIndex, endIndex, firstNextSmallerIndex, endToRel(firstNextSmallerIndex, endIndex))
+
+    startSumList[endToRel(startIndex, endIndex)] = startSumListElement + nextResult;
+    return startSumList[endToRel(startIndex, endIndex)];
 }
 
-function getSumRec(sumMap: number[][], absStartIndex: number, endIndex: number, fullInputLength: number): number {
+function getSumRec(sumMap: ENDINDEXSUMMAP[], absStartIndex: number, endIndex: number, fullInputLength: number): number {
+    return updateSumList(sumMap, absStartIndex, endIndex);
 
-    if (endIndex >= fullInputLength) {
-        throw 'bad endindex ' + endIndex
-    }
-    updateSumList(sumMap, absStartIndex, endIndex);
-    return sumMap[absStartIndex][endIndex];
+}
 
+export function endToRel(startIndex, endIndex) {
+    return endIndex - startIndex
+}
+
+export function relToEnd(startIndex, rel) {
+    return startIndex + rel;
 }
 
 function getSumMap(currInput: number[]) {
-    const sumMap: number[][] = currInput.map((el, index) => {
-        const result: number[] = [];
-        result[index] = el;
-        return result;
-    });
+    const sumMap: ENDINDEXSUMMAP[] = currInput.map(el => [el]);
     return sumMap;
 }
 
@@ -110,6 +119,7 @@ function doFFT(nbPhases: number, unrepeatedStartInput: number[], basePattern: SI
     let currInput = repeat(unrepeatedStartInput, repeatInput);
     const fullInputLength = currInput.length;
     console.log('fullInputLength', fullInputLength);
+    const DEBUG = false;
     for (let phase = 0; phase < nbPhases; phase++) {
         const sumMap = getSumMap(currInput);
         repeatInput != 1 && console.log('phase: ' + phase);
@@ -119,6 +129,7 @@ function doFFT(nbPhases: number, unrepeatedStartInput: number[], basePattern: SI
             let sum = 0;
             for (let absIndex = firstTimes0; absIndex < fullInputLength; absIndex += times0 * 2) {
                 const sumNumber = getSumRec(sumMap, absIndex, Math.min(absIndex + times0 - 1, fullInputLength - 1), fullInputLength);
+                DEBUG && console.assert(!isNaN(sumNumber));
                 let patternNb: SIGN = ([1, 0, -1, 0] as SIGN[])[Math.floor((absIndex - firstTimes0) / times0) % 4];
                 sum += patternNb == 1 ? sumNumber : -sumNumber;
                 if (patternNb == 0) {
@@ -153,6 +164,6 @@ function part2(inputNb: string): string {
     return result.slice(msgOffset, msgOffset + 8).join('');
 }
 
-logAndPushSolution(part2(input).slice(0, 8), solutions);
 assert.deepEqual(part2('02935109699940807407585447034323'), '78725270');
+logAndPushSolution(part2(input).slice(0, 8), solutions);
 assert.deepEqual(part2('03036732577212944063491565474664'), '84462026');
