@@ -183,28 +183,6 @@ function toLetter(t: TURN.LEFT | TURN.RIGHT): string {
     return t == TURN.LEFT ? 'L' : 'R';
 }
 
-function movesToProgramSimple(prog: (string | number)[]) {
-    const iStr: string[] = [];
-    let currPos = 0;
-    for (let i = 0; i < 3; i++) {
-        let nbInstructs = 9;
-        iStr[i] = prog.slice(currPos, currPos + nbInstructs).join(',');
-        while (iStr[i].length < 19 && currPos + nbInstructs < prog.length) {
-            nbInstructs++;
-            iStr[i] = prog.slice(currPos, currPos + nbInstructs).join(',');
-        }
-        while (iStr[i].length > 20) {
-            nbInstructs--;
-            iStr[i] = prog.slice(currPos, currPos + nbInstructs).join(',');
-        }
-        currPos += nbInstructs;
-    }
-    console.log(iStr);
-    console.log(iStr.map(i => i.length));
-    const result = `A,B,C\n${iStr[0]}\n${iStr[1]}\n${iStr[2]}\ny\n`;
-    return result;
-}
-
 export function getIntCodeInputs(arcade: Arcade): (string | number)[] {
     const painter = arcade.painter;
     const robot = arcade.robot;
@@ -236,11 +214,19 @@ const testString = ',sldfj,sdfa,24,';
 assert.deepEqual(testString.replace(/(^,|,$)/g, ''), 'sldfj,sdfa,24');
 assert.deepEqual(testString.slice(0, testString.length - 1), ',sldfj,sdfa,24');
 
+function movesToProgram(moves: (string | number)[]) {
+    let A = `R,8,L,12,R,8`;
+    let B = `L,10,L,10,R,8`;
+    let C = `L,12,L,12,L,10,R,10`;
+    const prog = `A,A,B,C,B,C,B,A,C,A\n${A}\n${B}\n${C}\ny\n`
+    return prog;
+}
+
 function part2() {
     const mode1Arcade = runGridPainter();
     // mode1Arcade.showGame();
     let moves = getIntCodeInputs(mode1Arcade);
-    const programInput = movesToProgramSimple(moves);
+    const programInput = movesToProgram(moves);
     let robot = new GridRobot<string>();
     let arcade = new Arcade(robot);
     arcade.SHOWGAME = true;
