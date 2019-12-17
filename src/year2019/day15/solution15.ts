@@ -7,23 +7,31 @@ import {DIR, DIRS, getNewPos, GridRobot} from "../util/GridRobot";
 
 SPACE;
 const BALL = '\u25CF\u25CF';
-BALL;
 const ROBOT_ID = 2;
+
+enum EL {
+    BLOCK,
+    WALL,
+    ROBOT,
+    EMPTY,
+    OXYGEN,
+    OTHER
+}
+
 const showGame = (el: any) => {
     switch (el) {
-        case 0:
+        case EL.BLOCK:
             return BLOCK;
-        case 1:
+        case EL.WALL:
             return '##';
-        case ROBOT_ID:
+        case EL.ROBOT:
             return BALL;
-        case 3:
+        case EL.EMPTY:
             return SPACE;
-        case 4:
+        case EL.OXYGEN:
             return 'OO';
-        case 5:
+        case EL.OTHER:
             return '**';
-
     }
     return '--'
 };
@@ -39,19 +47,13 @@ const UNEXPLORED = 1;
 
 class Arcade implements IOHandler {
     outputNb = 0;
-    col = 0;
-    row = 0;
-    status = 0;
+
     SHOWGAME: boolean
-        // = false;
-        = true;
+        = false;
+    // = true;
     // = DEBUG;
     public lastOutput: number = -1;
     nbInputs = 0;
-    DELAY
-        = false;
-
-    // = true;
     private lastShow: number = Date.now();
 
     constructor(public robot: GridRobot<unknown>) {
@@ -82,8 +84,6 @@ class Arcade implements IOHandler {
                 this.robot.move(1);
                 this.robot.paint(4);
                 oxygenPos = this.robot.p;
-                // console.log(this.robot.asImage(showGame));
-                // throw 'found +' + JSON.stringify(this.robot.p)
                 break;
         }
 
@@ -127,32 +127,28 @@ class Arcade implements IOHandler {
     }
 
     showGame() {
-        // console.clear();
         console.log(this.robot.asImage(showGame));
         console.log('');
-        if (this.DELAY) {
-            var waitTill = new Date(new Date().getTime() + 60);
-            while (waitTill > new Date()) {
-            }
-        }
     }
 }
 
-const N = 1;
-const S = 2;
-const W = 3;
-const E = 4;
-type JOYPOS = 1 | 2 | 3 | 4;
+
+enum JOYPOS {
+    N = 1,
+    S = 2,
+    W = 3,
+    E = 4,
+}
 
 export function windToDir(windDir: JOYPOS): DIR {
     switch (windDir) {
-        case N:
+        case JOYPOS.N:
             return DIR.UP;
-        case S:
+        case JOYPOS.S:
             return DIR.DOWN;
-        case W:
+        case JOYPOS.W:
             return DIR.LEFT;
-        case E:
+        case JOYPOS.E:
             return DIR.RIGHT;
     }
 }
@@ -160,13 +156,13 @@ export function windToDir(windDir: JOYPOS): DIR {
 export function dirWind(dir: DIR): JOYPOS {
     switch (dir) {
         case DIR.UP:
-            return N;
+            return JOYPOS.N;
         case DIR.DOWN:
-            return S;
+            return JOYPOS.S;
         case DIR.LEFT:
-            return W;
+            return JOYPOS.W;
         case DIR.RIGHT:
-            return E;
+            return JOYPOS.E;
     }
 }
 
@@ -212,10 +208,9 @@ function part2() {
     const EMPTY = 3;
     grid.paint(EMPTY);
     while (grid.getNbElem(EMPTY) > 0) {
-        ar.DELAY = true;
         ar.showGame();
         grid.forEach((p: P) => {
-            if (grid.get(p) == 4) {
+            if (grid.get(p) == EL.OXYGEN) {
                 grid.set(p, 5);
                 for (let i = 0; i < 4; i++) {
                     const adjacent = getNewPos(i, p);
