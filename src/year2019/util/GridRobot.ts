@@ -7,12 +7,14 @@ export enum TURN {
     NOTURN
 }
 
-export const enum DIR {
-    UP,
-    LEFT,
-    DOWN,
-    RIGHT,
+export enum DIR {
+    UP = 0,
+    LEFT = 1,
+    DOWN = 2,
+    RIGHT = 3,
 }
+
+export const DIRS: DIR[] = Object.values(DIR).filter(k => typeof k == 'number') as DIR[];
 
 export enum ARROW {
     UP = '^',
@@ -21,8 +23,11 @@ export enum ARROW {
     RIGHT = '>',
 }
 
+export const ARROWS: ARROW[] = Object.values(ARROW);
+export const DIRNAMES: (keyof ARROW)[] = Object.keys(ARROW) as (keyof ARROW & string)[];
+
 export function isArrow(d: string): d is ARROW {
-    return d == ARROW.UP || d == ARROW.DOWN || d == ARROW.LEFT || d == ARROW.RIGHT
+    return ARROWS.indexOf(d as any) !== -1
 }
 
 export function arrowToDir(dir: ARROW): DIR {
@@ -38,6 +43,10 @@ export function arrowToDir(dir: ARROW): DIR {
         default:
             throw 'invalid dir ' + dir
     }
+}
+
+export function dirToArrow(dir: DIR): ARROW {
+    return ARROW[DIR[dir]];
 }
 
 export function getNewPosA(dir: ARROW, p: P): P {
@@ -126,6 +135,18 @@ export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
     paintNext(output: ELTYPE) {
         const newPos = getNewPos(this._d, this._p);
         this.set(newPos, output)
+    }
+
+    getNewDir(turnDir: TURN) {
+        return getNewDir(this.d, turnDir)
+    }
+
+    getNextPos(dir: DIR = this.d): P {
+        return getNewPos(dir, this.p);
+    }
+
+    getNextVal(dir: DIR = this.d): ELTYPE | undefined {
+        return this.get(this.getNextPos(dir));
     }
 
     paintNextDir(output: ELTYPE, dir: DIR) {

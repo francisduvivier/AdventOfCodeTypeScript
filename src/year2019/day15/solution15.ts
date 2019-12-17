@@ -3,7 +3,7 @@ import {IOHandler} from "../day11/solution11";
 import {BLOCK, P, SPACE} from "../util/Grid";
 import {logAndPushSolution} from "../util/SolutionHandler";
 import {input} from "./input";
-import {DIR, getNewPos, GridRobot} from "../util/GridRobot";
+import {DIR, DIRS, getNewPos, GridRobot} from "../util/GridRobot";
 
 SPACE;
 const BALL = '\u25CF\u25CF';
@@ -100,12 +100,12 @@ class Arcade implements IOHandler {
             }
         }
         const optionsLeft: DIR[] = [];
-        for (let i = 0; i < 4; i++) {
-            let painted = this.robot.get(getNewPos(i, this.robot.p));
-            if (painted == undefined || painted == UNEXPLORED && !badStates.has(this.robot.posToKeyWDir(i))) {
-                unExplored.add(this.robot.posToKeyWDir(i));
-                this.robot.paintNextDir(UNEXPLORED, i);
-                optionsLeft.push(i)
+        for (let dir of DIRS) {
+            let painted = this.robot.getNextVal(dir);
+            if (painted == undefined || painted == UNEXPLORED && !badStates.has(this.robot.posToKeyWDir(dir))) {
+                unExplored.add(this.robot.posToKeyWDir(dir));
+                this.robot.paintNextDir(UNEXPLORED, dir);
+                optionsLeft.push(dir)
             }
         }
         if (optionsLeft.length == 0) {

@@ -53,4 +53,3 @@ export function copyMap<K, V>(map: Map<K, V>): Map<K, V> {
     map.forEach((v, k) => copy.set(k, v));
     return copy;
 }
-
