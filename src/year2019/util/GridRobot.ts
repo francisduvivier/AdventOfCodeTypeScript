@@ -49,19 +49,8 @@ export function dirToArrow(dir: DIR): ARROW {
     return ARROW[DIR[dir]];
 }
 
-export function getNewPosA(dir: ARROW, p: P): P {
-    switch (dir) {
-        case ARROW.DOWN:
-            return {row: p.row + 1, col: p.col};
-        case ARROW.LEFT:
-            return {row: p.row, col: p.col - 1};
-        case ARROW.RIGHT:
-            return {row: p.row, col: p.col + 1};
-        case ARROW.UP:
-            return {row: p.row - 1, col: p.col};
-        default:
-            throw 'invalid dir ' + dir
-    }
+export function getNewPosForArrow(dir: ARROW, p: P): P {
+    return getNewPos(arrowToDir(dir), p);
 }
 
 export function getNewPos(dir: DIR, p: P): P {
