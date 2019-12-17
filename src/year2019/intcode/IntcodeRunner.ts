@@ -19,7 +19,7 @@ function getModeLettersLtoR(modesString: string): MODELETTER[] {
 }
 
 function getArgs(mem: number[], addresses: number[], modeLettersLeftToRight: MODELETTER[]) {
-    const args = [];
+    const args: number[] = [];
     for (let i = 0; i < addresses.length; i++) {
         if (modeLettersLeftToRight[i] === MODELETTER.IMMEDIATE_MODE) {
             args[i] = addresses[i] || 0
@@ -170,7 +170,7 @@ export class IntcodeRunner {
             default:
                 throw `unknown intcode [${this.mem[pos]}] at pos [${pos}]`
         }
-        const addresses = [];
+        const addresses: number[] = [];
         const modeLettersLtoR = getModeLettersLtoR(modesString);
         for (let i = 0; i < nbArgs; i++) {
             addresses[i] = this.mem[(pos + 1 + i)];
