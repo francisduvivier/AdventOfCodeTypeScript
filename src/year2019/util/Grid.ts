@@ -96,6 +96,16 @@ export class Grid<ELTYPE> {
         return result;
     }
 
+    forEach(param: (p: P) => void) {
+        for (let row = this.minRow; row < this.maxRow + 1; row++) {
+            for (let col = this.minCol; col < this.maxCol + 1; col++) {
+                if (this.getRc(row, col) !== undefined) {
+                    param(P(row, col));
+                }
+            }
+        }
+    }
+
     asImage(colorFunc: (
         el: ELTYPE | undefined) => string = defaultPaintConverter,
             matrixConverter: (arr: (ELTYPE | undefined)[][]) => (ELTYPE | undefined)[][] = identity,
@@ -143,6 +153,10 @@ export class Grid<ELTYPE> {
 
     all() {
         return this.matrix.values();
+    }
+
+    getNbElem(elem: ELTYPE): number {
+        return [...this.all()].filter(el => el == elem).length
     }
 }
 

@@ -33,6 +33,8 @@ export function getNewDir(currAbsDir: DIR, turnDir: TURN): DIR {
 }
 
 export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
+    nbMoves: number = 0;
+
     get val(): ELTYPE | undefined {
         return this.get(this.p);
     }
@@ -62,6 +64,7 @@ export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
     }
 
     move(times = 1) {
+        this.nbMoves++;
         for (let i = 0; i < times; i++) {
             this.p = getNewPos(this._d, this._p);
         }
@@ -74,6 +77,21 @@ export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
     paint(output: ELTYPE) {
         this.set(this.p, output)
     }
+
+    paintNext(output: ELTYPE) {
+        const newPos = getNewPos(this._d, this._p);
+        this.set(newPos, output)
+    }
+
+    paintNextDir(output: ELTYPE, dir: DIR) {
+        const newPos = getNewPos(dir, this._p);
+        this.set(newPos, output)
+    }
+
+    posToKeyWDir(d: DIR): string {
+        return JSON.stringify(this.p) + d;
+    }
+
 }
 
 runTests();
