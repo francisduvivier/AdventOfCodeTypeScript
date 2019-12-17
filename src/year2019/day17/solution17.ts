@@ -1,5 +1,5 @@
 import {IOHandler} from "../day11/solution11";
-import {ARROW, arrowToDir, DIR, getNewPos, GridRobot, TURN} from "../util/GridRobot";
+import {ARROW, arrowToDir, DIR, getNewDir, getNewPos, GridRobot, isArrow, TURN} from "../util/GridRobot";
 import {IntcodeRunner} from "../intcode/IntcodeRunner";
 import {input} from "./input";
 import {cpP, P} from "../util/Grid";
@@ -10,6 +10,8 @@ import * as assert from "assert";
 // const BAD_STATE = 'bad state';
 // const badStates = new Set<string>();
 const unExplored = new Set<string>();
+
+const SCAFF = '#';
 
 class Arcade implements IOHandler {
     outputNb = 0;
@@ -27,9 +29,10 @@ class Arcade implements IOHandler {
     outputStr = '';
     intersects: number[] = [];
     finalOutput: number = -1;
-    painter = new GridRobot<string>()
+    painter = new GridRobot<string>();
     // = true;
-    private lastShow: number = Date.now();
+    private lastShow: number = 0;
+    private lastOutput2: number = 0;
 
     constructor(public robot: GridRobot<string>) {
         this.painter.d = DIR.RIGHT
@@ -37,12 +40,17 @@ class Arcade implements IOHandler {
 
     doOutput(output: number): void {
         unExplored.delete(this.robot.posToKeyWDir(this.robot.d));
+        if ((output == 46 || output == 35 || isArrow(String.fromCharCode(output))) && this.lastOutput == 10 && this.lastOutput2 == 10) {
+            this.painter.clear();
+        }
+        this.lastOutput2 = this.lastOutput;
         this.lastOutput = output;
         switch (output) {
+
             case 35:
-                this.painter.paint('#');
+                this.painter.paint(SCAFF);
                 this.painter.move();
-                this.outputStr += '#';
+                this.outputStr += SCAFF;
                 break;
             case 46:
                 this.painter.paint('.');
@@ -59,28 +67,23 @@ class Arcade implements IOHandler {
                     this.finalOutput = output;
                 } else {
                     let char = String.fromCharCode(output);
-                    this.robot.p = cpP(this.painter.p);
-                    this.robot.d = arrowToDir(char as ARROW);
-                    this.painter.paint('#');
+                    this.painter.paint(char);
+                    if (isArrow(char)) {
+                        this.robot.d = arrowToDir(char as ARROW);
+                        this.robot.p = cpP(this.painter.p);
+                    }
                     this.painter.move();
-                    this.outputStr += '#';
+                    this.outputStr += SCAFF;
                 }
-                console.log('got output' + output);
                 break;
         }
-        this.SHOWGAME && this.showGame();
+        this.maybeShow();
         this.outputNb++;
     }
 
     getInput(): number {
         this.nbInputs++;
-
-        if (this.SHOWGAME) {
-            if (Date.now() - this.lastShow > 200) {
-                this.showGame();
-                this.lastShow = Date.now();
-            }
-        }
+        this.maybeShow();
         return 0;
     }
 
@@ -90,16 +93,30 @@ class Arcade implements IOHandler {
         // console.log(this.outputStr);
         console.log('');
     }
+
+    private maybeShow() {
+        if (this.SHOWGAME) {
+            if (Date.now() - this.lastShow > 200) {
+                this.showGame();
+                this.lastShow = Date.now();
+            }
+        }
+    }
 }
 
 export const solutions = [];
 
-export function part1() {
+function runGridPainter() {
     let robot = new GridRobot<string>();
     let arcade = new Arcade(robot);
     // arcade.SHOWGAME = true;
     const intcode = new IntcodeRunner([...input], [], arcade);
     intcode.run();
+    return arcade;
+}
+
+export function part1() {
+    let arcade = runGridPainter();
     const intersects: number[] = [];
     const intersectPoints: P[] = [];
     arcade.painter.forEach(p => {
@@ -139,9 +156,9 @@ function tdToa(td: TD) {
     return td == TD.L ? 'L' : 'R'
 }
 
-assert.deepEqual(tdToa(TD.L), 'L')
-assert.deepEqual(tdToa(TURN.LEFT as any), 'L')
-assert.deepEqual(tdToa(TURN.RIGHT as any), 'R')
+assert.deepEqual(tdToa(TD.L), 'L');
+assert.deepEqual(tdToa(TURN.LEFT as any), 'L');
+assert.deepEqual(tdToa(TURN.RIGHT as any), 'R');
 
 function toCharCode(char: string): number {
     return char.charCodeAt(0)
@@ -151,19 +168,88 @@ assert.deepEqual(toCharCode('\n'), 10);
 assert.deepEqual(toCharCode('^'), 94);
 
 
-export function getFullProgramRobot(arcade: Arcade) {
-    // arcade.painter.
-    return undefined;
+function getNextTurnDir(robot: GridRobot<string>, painter: GridRobot<string>): TURN {
+    const possible: TURN[] = [];
+    for (let turnDir of [TURN.NOTURN, TURN.RIGHT, TURN.LEFT]) {
+        const adjacent = getNewPos(getNewDir(robot.d, turnDir), robot.p);
+        if (painter.get(adjacent) == SCAFF) {
+            possible.push(turnDir);
+        }
+    }
+    return possible[0];
 }
 
+function toLetter(t: TURN.LEFT | TURN.RIGHT): string {
+    return t == TURN.LEFT ? 'L' : 'R';
+}
+
+function movesToProgramSimple(prog: (string | number)[]) {
+    const iStr: string[] = [];
+    let currPos = 0;
+    for (let i = 0; i < 3; i++) {
+        let nbInstructs = 9;
+        iStr[i] = prog.slice(currPos, currPos + nbInstructs).join(',');
+        while (iStr[i].length < 19 && currPos + nbInstructs < prog.length) {
+            nbInstructs++;
+            iStr[i] = prog.slice(currPos, currPos + nbInstructs).join(',');
+        }
+        while (iStr[i].length > 20) {
+            nbInstructs--;
+            iStr[i] = prog.slice(currPos, currPos + nbInstructs).join(',');
+        }
+        currPos += nbInstructs;
+    }
+    console.log(iStr);
+    console.log(iStr.map(i => i.length));
+    const result = `A,B,C\n${iStr[0]}\n${iStr[1]}\n${iStr[2]}\ny\n`;
+    return result;
+}
+
+export function getIntCodeInputs(arcade: Arcade): (string | number)[] {
+    const painter = arcade.painter;
+    const robot = arcade.robot;
+    let nextTurn = getNextTurnDir(robot, painter);
+    let prog: (string | number)[] = [];
+    while (nextTurn !== undefined) {
+        if (nextTurn == TURN.NOTURN) {
+            robot.move();
+        } else {
+            robot.turn(nextTurn);
+        }
+        if (nextTurn == TURN.NOTURN) {
+            if (prog.length && typeof prog[prog.length - 1] == "number") {
+                (prog[prog.length - 1] as number) += 1
+            } else {
+                prog.push(1)
+            }
+        } else {
+            prog.push(toLetter(nextTurn))
+        }
+
+        nextTurn = getNextTurnDir(robot, painter);
+    }
+    console.log('prog', prog);
+    return prog;
+}
+
+const testString = ',sldfj,sdfa,24,';
+assert.deepEqual(testString.replace(/(^,|,$)/g, ''), 'sldfj,sdfa,24');
+assert.deepEqual(testString.slice(0, testString.length - 1), ',sldfj,sdfa,24');
+
 function part2() {
+    const mode1Arcade = runGridPainter();
+    // mode1Arcade.showGame();
+    let moves = getIntCodeInputs(mode1Arcade);
+    const programInput = movesToProgramSimple(moves);
     let robot = new GridRobot<string>();
     let arcade = new Arcade(robot);
     arcade.SHOWGAME = true;
     let inputProg = [...input];
-    inputProg[0] = 1;
-    const intcode = new IntcodeRunner(inputProg, [], arcade);
+    inputProg[0] = 2;
+    const intcode = new IntcodeRunner(inputProg, [...programInput].map(toCharCode), arcade);
     intcode.run();
+    arcade.showGame();
+
     return arcade.finalOutput;
 }
 

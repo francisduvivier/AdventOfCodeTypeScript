@@ -162,6 +162,14 @@ export class Grid<ELTYPE> {
     getNbElem(elem: ELTYPE): number {
         return [...this.all()].filter(el => el == elem).length
     }
+
+    clear() {
+        this.matrix = new Map<string, ELTYPE | undefined>();
+        this.maxCol = 0;
+        this.maxRow = 0;
+        this.minCol = 0;
+        this.minRow = 0;
+    }
 }
 
 export function flattenPoint(solution: P, maxRowDigits = 2) {

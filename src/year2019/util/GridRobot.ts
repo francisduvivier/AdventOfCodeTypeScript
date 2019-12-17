@@ -1,9 +1,10 @@
 import {runTests} from "./GridTest";
 import {Grid, P} from "./Grid";
 
-export const enum TURN {
+export enum TURN {
     LEFT,
-    RIGHT
+    RIGHT,
+    NOTURN
 }
 
 export const enum DIR {
@@ -13,12 +14,17 @@ export const enum DIR {
     RIGHT,
 }
 
-export const enum ARROW {
-    UP='^',
-    LEFT='<',
-    DOWN='v',
-    RIGHT='>',
+export enum ARROW {
+    UP = '^',
+    LEFT = '<',
+    DOWN = 'v',
+    RIGHT = '>',
 }
+
+export function isArrow(d: string): d is ARROW {
+    return d == ARROW.UP || d == ARROW.DOWN || d == ARROW.LEFT || d == ARROW.RIGHT
+}
+
 export function arrowToDir(dir: ARROW): DIR {
     switch (dir) {
         case ARROW.DOWN:
@@ -33,6 +39,7 @@ export function arrowToDir(dir: ARROW): DIR {
             throw 'invalid dir ' + dir
     }
 }
+
 export function getNewPosA(dir: ARROW, p: P): P {
     switch (dir) {
         case ARROW.DOWN:
@@ -64,6 +71,9 @@ export function getNewPos(dir: DIR, p: P): P {
 }
 
 export function getNewDir(currAbsDir: DIR, turnDir: TURN): DIR {
+    if (turnDir == TURN.NOTURN) {
+        return currAbsDir;
+    }
     return (currAbsDir + (turnDir == TURN.LEFT ? 1 : 3)) % 4;
 }
 
@@ -127,6 +137,11 @@ export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
         return JSON.stringify(this.p) + d;
     }
 
+
+    clear() {
+        super.clear();
+        this._p = P(0, 0);
+    }
 }
 
 runTests();
