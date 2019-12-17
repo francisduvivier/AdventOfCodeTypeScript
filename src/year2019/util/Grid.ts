@@ -5,6 +5,10 @@ export function P(row: number, col: number): P {
     return {col, row}
 }
 
+export function cpP(p: P): P {
+    return {...p}
+}
+
 export function P3(row: number, col: number, z: number): P3 {
     return {col, row, z}
 }

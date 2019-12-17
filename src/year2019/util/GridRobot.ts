@@ -13,6 +13,41 @@ export const enum DIR {
     RIGHT,
 }
 
+export const enum ARROW {
+    UP='^',
+    LEFT='<',
+    DOWN='v',
+    RIGHT='>',
+}
+export function arrowToDir(dir: ARROW): DIR {
+    switch (dir) {
+        case ARROW.DOWN:
+            return DIR.DOWN;
+        case ARROW.LEFT:
+            return DIR.LEFT;
+        case ARROW.RIGHT:
+            return DIR.RIGHT;
+        case ARROW.UP:
+            return DIR.UP;
+        default:
+            throw 'invalid dir ' + dir
+    }
+}
+export function getNewPosA(dir: ARROW, p: P): P {
+    switch (dir) {
+        case ARROW.DOWN:
+            return {row: p.row + 1, col: p.col};
+        case ARROW.LEFT:
+            return {row: p.row, col: p.col - 1};
+        case ARROW.RIGHT:
+            return {row: p.row, col: p.col + 1};
+        case ARROW.UP:
+            return {row: p.row - 1, col: p.col};
+        default:
+            throw 'invalid dir ' + dir
+    }
+}
+
 export function getNewPos(dir: DIR, p: P): P {
     switch (dir) {
         case DIR.DOWN:
