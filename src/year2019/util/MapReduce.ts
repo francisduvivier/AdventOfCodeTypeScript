@@ -46,3 +46,11 @@ export function splitIntoRows(input: number[], w: number): number[][] {
     }
     return layers;
 }
+
+
+export function copyMap<K, V>(map: Map<K, V>): Map<K, V> {
+    const copy = new Map<K, V>();
+    map.forEach((v, k) => copy.set(k, v));
+    return copy;
+}
+
