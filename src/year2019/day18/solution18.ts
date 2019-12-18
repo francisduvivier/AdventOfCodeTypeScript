@@ -60,8 +60,8 @@ function createGrid(inputString: string) {
 
 let times = 0;
 
-const DEBUG = true;
-// const DEBUG = false;
+// const DEBUG = true;
+const DEBUG = false;
 
 const WALL = '#';
 
@@ -83,6 +83,8 @@ function calcLeastMoves(inputString = input, splitTask?: boolean): State | undef
                 gridRobot.set(newStart, VAULT_ENTRANCE)
             }
         }
+        // DEBUG &&
+        console.log(gridRobot.asImage(e => e!))
     } else {
         startPositions.push(origP);
     }
@@ -157,8 +159,8 @@ function calcLeastMoves(inputString = input, splitTask?: boolean): State | undef
             for (let dir of DIRS) {
                 for (let mi = 0; mi < nbRobots; mi++) {
                     const newPositions = [...unExploredOkState.p];
-                    newPositions[mi] = getNewPos(dir!, startState.p[mi]);
-                    const newState = new State(startState, newPositions, mi, gridRobot);
+                    newPositions[mi] = getNewPos(dir!, unExploredOkState.p[mi]);
+                    const newState = new State(unExploredOkState, newPositions, mi, gridRobot);
                     if (isOkState(newState)) {
                         addUnexploredOkState(newState);
                     }
@@ -218,19 +220,19 @@ export class State {
 const solutionStates: (State | undefined)[] = []
 const solutions: number[] = []
 solutionStates.push(calcLeastMoves(testInput0));
-logAndPushSolution(solutionStates[0]!.steps, solutions);
-assert.deepEqual(solutions[0], testSol0);
+logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
+assert.deepEqual(solutions[solutions.length-1], testSol0);
 solutionStates.push(calcLeastMoves(testInput1));
-logAndPushSolution(solutionStates[1]!.steps, solutions);
-assert.deepEqual(solutions[1], testSol1);
+logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
+assert.deepEqual(solutions[solutions.length-1], testSol1);
 solutionStates.push(calcLeastMoves(testInput2));
-logAndPushSolution(solutionStates[2]!.steps, solutions);
-assert.deepEqual(solutions[2], testSol2);
+logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
+assert.deepEqual(solutions[solutions.length-1], testSol2);
 // calcLeastMoves();
 solutionStates.push(calcLeastMoves(testInput4, true));
-logAndPushSolution(solutionStates[2]!.steps, solutions);
-assert.deepEqual(solutions[2], testSol4);
+logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
+assert.deepEqual(solutions[solutions.length-1], testSol4);
 
 solutionStates.push(calcLeastMoves(testInput5, true));
-logAndPushSolution(solutionStates[2]!.steps, solutions);
-assert.deepEqual(solutions[2], testSol5);
+logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
+assert.deepEqual(solutions[solutions.length-1], testSol5);
