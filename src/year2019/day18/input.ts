@@ -123,4 +123,22 @@ export const testInput5 =`#############
 #M###N#H###.#
 #o#m..#i#jk.#
 #############`;
+`#############
+#g#f.D#..h#l#
+#F###e#E###.#
+#dCba@#@BcIJ#
+#############
+#nK.L@#@G...#
+#M###N#H###.#
+#o#m..#i#jk.#
+#############`
 export const testSol5 = 72;
+
+export const testInput6 =`#######
+#a.#Cd#
+##...##
+##.@.##
+##...##
+#cB#Ab#
+#######`;
+export const testSol6 = 8;

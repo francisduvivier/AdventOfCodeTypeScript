@@ -3,12 +3,12 @@ import {
     testInput0,
     testInput1,
     testInput2,
-    testInput4, testInput5,
+    testInput4, testInput5, testInput6,
     testSol0,
     testSol1,
     testSol2,
     testSol4,
-    testSol5
+    testSol5, testSol6
 } from "./input";
 import {DIRS, getNewPos, GridRobot} from "../util/GridRobot";
 import {P} from "../util/Grid";
@@ -123,6 +123,7 @@ function calcLeastMoves(inputString = input, splitTask?: boolean): State | undef
         unExploredStatesWDirList.push(newState.key());
         bestStepsForState.set(newState.toKeyForBest(), newState.steps);
         if (newState.foundKeysKey == alfaKey) {
+            console.assert(solution?.steps ?? Infinity > newState.steps)
             solution = newState;
         }
     }
@@ -209,11 +210,13 @@ export class State {
     }
 
     toKeyForBest() {
-        return 'k-' + this.foundKeysKey + this.p.map(p => 'r' + p.row + 'c' + p.col).join(',');
+        const movedPos = this.p[this.moverIndex ?? 0];
+        let posKey = 'r' + movedPos.row + 'c' + movedPos.col;
+        return 'k-' + this.foundKeysKey + posKey;
     }
 
     key() {
-        return this.prevState?.toKeyForBest() + this.toKeyForBest();
+        return (this.prevState?.toKeyForBest() ?? VAULT_ENTRANCE) + this.toKeyForBest();
     }
 }
 
@@ -221,18 +224,31 @@ const solutionStates: (State | undefined)[] = []
 const solutions: number[] = []
 solutionStates.push(calcLeastMoves(testInput0));
 logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
-assert.deepEqual(solutions[solutions.length-1], testSol0);
+assert.deepEqual(solutions[solutions.length - 1], testSol0);
 solutionStates.push(calcLeastMoves(testInput1));
 logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
-assert.deepEqual(solutions[solutions.length-1], testSol1);
-solutionStates.push(calcLeastMoves(testInput2));
-logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
-assert.deepEqual(solutions[solutions.length-1], testSol2);
-// calcLeastMoves();
-solutionStates.push(calcLeastMoves(testInput4, true));
-logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
-assert.deepEqual(solutions[solutions.length-1], testSol4);
+assert.deepEqual(solutions[solutions.length - 1], testSol1);
+// solutionStates.push(calcLeastMoves(testInput2));
+// logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
+// assert.deepEqual(solutions[solutions.length - 1], testSol2);
+testInput2;
+testSol2;
+// solutionStates.push(calcLeastMoves());
+// logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
+// assert.deepEqual(solutions[solutions.length - 1], 4620);
 
+solutionStates.push(calcLeastMoves(testInput6, true));
+logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
+assert.deepEqual(solutions[solutions.length - 1], testSol6);
 solutionStates.push(calcLeastMoves(testInput5, true));
 logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
-assert.deepEqual(solutions[solutions.length-1], testSol5);
+// assert.deepEqual(solutions[solutions.length - 1], testSol5);
+testSol5
+
+
+solutionStates.push(calcLeastMoves(testInput4, true));
+logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
+assert.deepEqual(solutions[solutions.length - 1], testSol4);
+
+solutionStates.push(calcLeastMoves(input, true));
+logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
