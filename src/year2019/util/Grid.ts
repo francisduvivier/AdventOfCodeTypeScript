@@ -172,6 +172,9 @@ export class Grid<ELTYPE> {
     }
 }
 
-export function flattenPoint(solution: P, maxRowDigits = 2) {
+export function flattenPoint(solution: P|undefined, maxRowDigits = 2) {
+    if(!solution){
+        return -1;
+    }
     return Math.pow(10, maxRowDigits) * solution.col + solution.row;
 }

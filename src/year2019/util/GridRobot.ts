@@ -77,7 +77,6 @@ export function getNewDir(currAbsDir: DIR, turnDir: TURN): DIR {
 
 export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
     nbMoves: number = 0;
-
     get val(): ELTYPE | undefined {
         return this.get(this.p);
     }

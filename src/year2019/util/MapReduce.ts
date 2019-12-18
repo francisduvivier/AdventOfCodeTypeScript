@@ -53,3 +53,10 @@ export function copyMap<K, V>(map: Map<K, V>): Map<K, V> {
     map.forEach((v, k) => copy.set(k, v));
     return copy;
 }
+
+
+export function eqSet(as, bs) {
+    if (as.size !== bs.size) return false;
+    for (var a of as) if (!bs.has(a)) return false;
+    return true;
+}

@@ -91,3 +91,14 @@ export const testInput2 =`#################
 #l.F..d...h..C.m#
 #################`;
 export const testSol2 = 81;
+
+export const testInput0 =`#########
+#b.A.@.a#
+#########`;
+export const testSol0 = 8;
+export const testInput1 =`########################
+#f.D.E.e.C.b.A.@.a.B.c.#
+######################.#
+#d.....................#
+########################`;
+export const testSol1 = 86;
