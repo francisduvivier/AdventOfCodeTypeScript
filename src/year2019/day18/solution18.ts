@@ -1,11 +1,12 @@
-import {input, testInput0, testInput1, testInput2} from "./input";
+import {input, testInput0, testInput1, testInput2, testSol0, testSol1, testSol2} from "./input";
 import {DIR, DIRS, getNewPos, GridRobot} from "../util/GridRobot";
 import {P} from "../util/Grid";
 import * as assert from "assert";
+import {logAndPushSolution} from "../util/SolutionHandler";
 
 testInput1;
 testInput2;
-const START = '@';
+const VAULT_ENTRANCE = '@';
 
 function getAllKeys(letterList: string[]) {
     const allLetters = new Set<string>(letterList);
@@ -38,7 +39,7 @@ function createGrid(inputString: string) {
     rows.forEach((row, rindex) => {
         row.split('').forEach((el, cindex) => {
             gridInput.set(P(rindex, cindex), el);
-            if (el == START) {
+            if (el == VAULT_ENTRANCE) {
                 gridInput.p = P(rindex, cindex);
             }
         });
@@ -48,11 +49,10 @@ function createGrid(inputString: string) {
 
 let times = 0;
 
-const DEBUG = true;
+// const DEBUG = true;
+const DEBUG = false;
 
-// const DEBUG = false;
-
-function part1(inputString = input) {
+function part1(inputString = input): State | undefined {
     const grid = createGrid(inputString);
     const targetKeys = getAllKeys([...grid.all()].filter(isletter));
     const alfaKey = keysToSortedString(targetKeys);
@@ -100,10 +100,9 @@ function part1(inputString = input) {
     }
 
     const startState = new State(undefined, undefined, grid);
-    let lastState = startState;
 
     for (let dir of DIRS) {
-        const newState = new State(lastState, dir, grid);
+        const newState = new State(startState, dir, grid);
         if (isOkState(newState)) {
             addUnexploredOkState(newState);
         }
@@ -112,18 +111,17 @@ function part1(inputString = input) {
 
     while (unExploredStatesWDirList.length > 0) {
         DEBUG && console.log(times, unExploredStatesWDirList);
-        const newState = getNextUnexplored();
+        const unExploredOkState = getNextUnexplored();
 
         for (let dir of DIRS) {
-            const newState = new State(lastState, dir, grid);
-            if (isOkState(newState)) {
-                addUnexploredOkState(newState);
+            const canditateState = new State(unExploredOkState, dir, grid);
+            if (isOkState(canditateState)) {
+                addUnexploredOkState(canditateState);
             }
         }
-        lastState = newState;
     }
 
-    console.log(times++, solution);
+    return solution;
 }
 
 export function keysToSortedString(keys: Set<string>) {
@@ -170,11 +168,19 @@ export class State {
     }
 
     key() {
-        return this.prevState && this.prevState.toKeyWDir(this.dir!) || 'START';
+        return this.prevState && this.prevState.toKeyWDir(this.dir!) || 'VAULT_ENTRANCE';
     }
 }
 
-part1(testInput0);
-// part1(testInput1);
-// part1(testInput2);
-// part1();
+const solutionStates: (State | undefined)[] = []
+const solutions: number[] = []
+solutionStates.push(part1(testInput0));
+logAndPushSolution(solutionStates[0]!.steps, solutions);
+assert.deepEqual(solutions[0], testSol0);
+solutionStates.push(part1(testInput1));
+logAndPushSolution(solutionStates[1]!.steps, solutions);
+assert.deepEqual(solutions[1], testSol1);
+solutionStates.push(part1(testInput2));
+logAndPushSolution(solutionStates[2]!.steps, solutions);
+assert.deepEqual(solutions[2], testSol2);
+part1();
