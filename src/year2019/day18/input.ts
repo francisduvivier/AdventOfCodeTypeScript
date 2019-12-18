@@ -103,3 +103,24 @@ export const testInput1 =`########################
 #d.....................#
 ########################`;
 export const testSol1 = 86;
+
+
+export const testInput4 =`#############
+#DcBa.#.GhKl#
+#.###...#I###
+#e#d#.@.#j#k#
+###C#...###J#
+#fEbA.#.FgHi#
+#############`;
+export const testSol4 = 32;
+
+export const testInput5 =`#############
+#g#f.D#..h#l#
+#F###e#E###.#
+#dCba...BcIJ#
+#####.@.#####
+#nK.L...G...#
+#M###N#H###.#
+#o#m..#i#jk.#
+#############`;
+export const testSol5 = 72;
