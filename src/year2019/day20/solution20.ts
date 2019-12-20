@@ -147,7 +147,7 @@ function showSolutionGrid(rawGrid: Grid<string>, solution: State) {
     console.log(solutionGrid.asImage(el => el ?? '-'));
 }
 
-const MAX_LEVEL = 30;
+const MAX_LEVEL = 1000;
 
 function calcShortestPath(input: string, maxLevel = MAX_LEVEL): State {
     const {rawGrid, portalGrid, portalNameToInfo} = createGridInfo(input);
@@ -196,12 +196,16 @@ function calcShortestPath(input: string, maxLevel = MAX_LEVEL): State {
         }
         const bestStateInfos: { steps: number, level: number }[] | undefined = bestStepsForState.get(newState.toKeyForBest());
         for (let bestStateInfo of bestStateInfos ?? []) {
-            if ((newState.level == bestStateInfo.level || newState.level > maxLevel)
+            if (newState.level == bestStateInfo.level
                 // (newState.level % 2 == bestStateInfo.level % 2
                 // && Math.abs(newState.level) >= Math.abs(bestStateInfo.level) && Math.sign(bestStateInfo.level) == Math.sign(newState.level))
-                && newState.steps >= bestStateInfo.steps) {
+                && newState.steps >= bestStateInfo.steps
+            ) {
                 return false
             }
+        }
+        if (solution && solution?.steps <= newState.steps + newState.level) {
+            return false
         }
         return true;
     }
@@ -223,7 +227,7 @@ function calcShortestPath(input: string, maxLevel = MAX_LEVEL): State {
     }
 
     function getNextUnexplored(): State {
-        let newStateKey = unExploredStatesWDirList.pop()!;
+        let newStateKey = unExploredStatesWDirList.splice(0, 1)[0]!;
         assert.notDeepEqual(newStateKey, undefined);
         assert.notDeepEqual(unExploredStatesWDirMap.get(newStateKey), undefined, newStateKey);
         const newState = unExploredStatesWDirMap.get(newStateKey)!;
