@@ -83,8 +83,7 @@ function calcLeastMoves(inputString = input, splitTask?: boolean): State | undef
                 gridRobot.set(newStart, VAULT_ENTRANCE)
             }
         }
-        // DEBUG &&
-        console.log(gridRobot.asImage(e => e!))
+        DEBUG && console.log(gridRobot.asImage(e => e!))
     } else {
         startPositions.push(origP);
     }
@@ -107,7 +106,7 @@ function calcLeastMoves(inputString = input, splitTask?: boolean): State | undef
         }
         let newVal = gridRobot.get(newState.p[newState.moverIndex])!;
         assert.notDeepEqual(newVal, undefined);
-        if (newVal == WALL || newState.prevState?.foundKeysKey === alfaKey || isBlockedAtDoor(newVal, newState)) {
+        if (newVal == WALL || newState.prevState?.foundKeysKey.length === alfaKey.length || isBlockedAtDoor(newVal, newState)) {
             return false;
         }
 
@@ -122,8 +121,9 @@ function calcLeastMoves(inputString = input, splitTask?: boolean): State | undef
         unExploredStatesWDirMap.set(newState.key(), newState);
         unExploredStatesWDirList.push(newState.key());
         bestStepsForState.set(newState.toKeyForBest(), newState.steps);
-        if (newState.foundKeysKey == alfaKey) {
-            console.assert(solution?.steps ?? Infinity > newState.steps)
+        if (newState.foundKeysKey.length == alfaKey.length) {
+            console.assert(solution?.steps ?? Infinity > newState.steps);
+            console.assert([...new Set([...newState.foundKeysKey]).values()].sort().join('') == alfaKey);
             solution = newState;
         }
     }
@@ -144,9 +144,10 @@ function calcLeastMoves(inputString = input, splitTask?: boolean): State | undef
         for (let dir of DIRS) {
             for (let mi = 0; mi < nbRobots; mi++) {
                 const newPositions = [...startState.p];
-                newPositions[mi] = getNewPos(dir!, startState.p[mi]);
+                newPositions[mi] = getNewPos(dir, startState.p[mi]);
                 const newState = new State(startState, newPositions, mi, gridRobot);
-                if (isOkState(newState)) {
+                let okState = isOkState(newState);
+                if (okState) {
                     addUnexploredOkState(newState);
                 }
             }
@@ -162,7 +163,8 @@ function calcLeastMoves(inputString = input, splitTask?: boolean): State | undef
                     const newPositions = [...unExploredOkState.p];
                     newPositions[mi] = getNewPos(dir!, unExploredOkState.p[mi]);
                     const newState = new State(unExploredOkState, newPositions, mi, gridRobot);
-                    if (isOkState(newState)) {
+                    let okState = isOkState(newState);
+                    if (okState) {
                         addUnexploredOkState(newState);
                     }
                 }
@@ -188,30 +190,36 @@ function isLowerletter(char: string | undefined) {
 }
 
 export class State {
-    readonly foundKeysKey: string;
     readonly steps: number;
+    readonly keysUnlockedInOrder: string;
 
     constructor(public prevState: State | undefined, readonly p: P[], readonly moverIndex: number | undefined, grid: GridRobot<string>) {
 
         if (prevState !== undefined) {
-            this.foundKeysKey = prevState.foundKeysKey;
+            this.keysUnlockedInOrder = prevState.keysUnlockedInOrder;
             this.steps = prevState.steps + 1
         } else {
             this.steps = 0;
-            this.foundKeysKey = '';
+            this.keysUnlockedInOrder = '';
         }
         if (moverIndex !== undefined) {
             let newPosVal = grid.get(this.p[moverIndex]);
             assert.notDeepEqual(newPosVal, undefined);
-            if (isLowerletter(newPosVal) && this.foundKeysKey.indexOf(newPosVal!) == -1) {
-                this.foundKeysKey = this.foundKeysKey.split('').concat([newPosVal!]).sort().join('');
+            if (isLowerletter(newPosVal) && this.keysUnlockedInOrder.indexOf(newPosVal!) == -1) {
+                this.keysUnlockedInOrder += newPosVal;
             }
         }
     }
 
+    get foundKeysKey(): string {
+        return [...this.keysUnlockedInOrder].sort().join('');
+    }
+
     toKeyForBest() {
-        const movedPos = this.p[this.moverIndex ?? 0];
-        let posKey = 'r' + movedPos.row + 'c' + movedPos.col;
+        let posKey = '';
+        for (let movedPos of this.p) {
+            posKey += 'r' + movedPos.row + 'c' + movedPos.col;
+        }
         return 'k-' + this.foundKeysKey + posKey;
     }
 
@@ -228,21 +236,23 @@ assert.deepEqual(solutions[solutions.length - 1], testSol0);
 solutionStates.push(calcLeastMoves(testInput1));
 logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
 assert.deepEqual(solutions[solutions.length - 1], testSol1);
-// solutionStates.push(calcLeastMoves(testInput2));
-// logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
-// assert.deepEqual(solutions[solutions.length - 1], testSol2);
+solutionStates.push(calcLeastMoves(testInput2));
+logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
+assert.deepEqual(solutions[solutions.length - 1], testSol2);
 testInput2;
+testInput1;
 testSol2;
-// solutionStates.push(calcLeastMoves());
-// logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
-// assert.deepEqual(solutions[solutions.length - 1], 4620);
+testSol1;
+solutionStates.push(calcLeastMoves());
+logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
+assert.deepEqual(solutions[solutions.length - 1], 4620);
 
 solutionStates.push(calcLeastMoves(testInput6, true));
 logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
 assert.deepEqual(solutions[solutions.length - 1], testSol6);
 solutionStates.push(calcLeastMoves(testInput5, true));
 logAndPushSolution(solutionStates[solutions.length]!.steps, solutions);
-// assert.deepEqual(solutions[solutions.length - 1], testSol5);
+assert.deepEqual(solutions[solutions.length - 1], testSol5, JSON.stringify(solutionStates[solutions.length - 1]));
 testSol5
 
 
