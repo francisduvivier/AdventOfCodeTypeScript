@@ -17,3 +17,7 @@ export function sortString(unSortedLetters) {
 }
 
 assert.deepEqual(sortString('badc'), 'abcd')
+
+export function keysToSortedString(keys: Set<string>) {
+    return [...keys.values()].sort().join('');
+}

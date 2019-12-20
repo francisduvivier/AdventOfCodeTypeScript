@@ -1,5 +1,3 @@
-import {GridRobot} from "./GridRobot";
-
 export type P = { row: number; col: number };
 export type P3 = P & { z: number };
 
@@ -51,6 +49,14 @@ export class Grid<ELTYPE> {
     private maxRow: number = 0;
     private minCol: number = 0;
     private minRow: number = 0;
+
+    get rows(): number {
+        return this.maxRow + 1;
+    }
+
+    get cols(): number {
+        return this.maxCol + 1;
+    }
 
     static fromMatrix<E>(matrix: E[][]): Grid<E> {
         const grid = new Grid<E>();
@@ -174,15 +180,15 @@ export class Grid<ELTYPE> {
     }
 }
 
-export function flattenPoint(solution: P|undefined, maxRowDigits = 2) {
-    if(!solution){
+export function flattenPoint(solution: P | undefined, maxRowDigits = 2) {
+    if (!solution) {
         return -1;
     }
     return Math.pow(10, maxRowDigits) * solution.col + solution.row;
 }
 
 export function createGrid(inputString: string) {
-    const gridInput = new GridRobot<string>();
+    const gridInput = new Grid<string>();
     const rows = inputString.split('\n');
     rows.forEach((row, rindex) => {
         row.split('').forEach((el, cindex) => {
