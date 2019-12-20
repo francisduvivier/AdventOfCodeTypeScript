@@ -3,17 +3,21 @@ import {
     testInput0,
     testInput1,
     testInput2,
-    testInput4, testInput5, testInput6,
+    testInput4,
+    testInput5,
+    testInput6,
     testSol0,
     testSol1,
     testSol2,
     testSol4,
-    testSol5, testSol6
+    testSol5,
+    testSol6
 } from "./input";
 import {DIRS, getNewPos, GridRobot} from "../util/GridRobot";
-import {P} from "../util/Grid";
+import {createGrid, P} from "../util/Grid";
 import * as assert from "assert";
 import {logAndPushSolution} from "../util/SolutionHandler";
+import {isLetter, isLowerletter, keysToSortedString} from "../util/Strings";
 
 testInput1;
 testInput2;
@@ -40,24 +44,6 @@ function getAllKeys(letterList: string[]) {
     return keys;
 }
 
-function isletter(el: string | undefined): el is string {
-    return !!el && !!el.match(/[a-zA-Z]/);
-}
-
-function createGrid(inputString: string) {
-    const gridInput = new GridRobot<string>();
-    const rows = inputString.split('\n');
-    rows.forEach((row, rindex) => {
-        row.split('').forEach((el, cindex) => {
-            gridInput.set(P(rindex, cindex), el);
-            if (el == VAULT_ENTRANCE) {
-                gridInput.p = P(rindex, cindex);
-            }
-        });
-    });
-    return gridInput;
-}
-
 let times = 0;
 
 // const DEBUG = true;
@@ -66,10 +52,10 @@ const DEBUG = false;
 const WALL = '#';
 
 function calcLeastMoves(inputString = input, splitTask?: boolean): State | undefined {
-    const gridRobot = createGrid(inputString);
+    const gridRobot = createGrid(inputString) ;// TODO loop and find vault entrance
     let nbRobots = 1;
     const startPositions: P[] = [];
-    const origP = gridRobot.p;
+    const origP = ; // TODO loop and find vault entrance
     if (splitTask) {
         nbRobots = 4;
         gridRobot.paint(WALL);
@@ -88,7 +74,7 @@ function calcLeastMoves(inputString = input, splitTask?: boolean): State | undef
         startPositions.push(origP);
     }
     DEBUG && console.log(startPositions)
-    const targetKeys = getAllKeys([...gridRobot.all()].filter(isletter));
+    const targetKeys = getAllKeys([...gridRobot.all()].filter(isLetter));
     const alfaKey = keysToSortedString(targetKeys);
     DEBUG && console.log('alfaKey', alfaKey);
     const unExploredStatesWDirMap = new Map<string, State>();
@@ -97,7 +83,7 @@ function calcLeastMoves(inputString = input, splitTask?: boolean): State | undef
     let solution: State | undefined = undefined;
 
     function isBlockedAtDoor(newVal: string, newState: State) {
-        return isletter(newVal) && newVal.toUpperCase() == newVal && newState.foundKeysKey.indexOf(newVal.toLowerCase()) == -1;
+        return isLetter(newVal) && newVal.toUpperCase() == newVal && newState.foundKeysKey.indexOf(newVal.toLowerCase()) == -1;
     }
 
     function isOkState(newState: State) {
@@ -177,16 +163,8 @@ function calcLeastMoves(inputString = input, splitTask?: boolean): State | undef
     return solution;
 }
 
-export function keysToSortedString(keys: Set<string>) {
-    return [...keys.values()].sort().join('');
-}
-
 export function sortedKeysStringSameOrBetter(keys: string, other: string) {
     keys.indexOf(other) !== -1;
-}
-
-function isLowerletter(char: string | undefined) {
-    return isletter(char) && char.toLowerCase() == char
 }
 
 export class State {
