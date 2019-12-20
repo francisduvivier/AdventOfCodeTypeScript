@@ -1,3 +1,5 @@
+import {GridRobot} from "./GridRobot";
+
 export type P = { row: number; col: number };
 export type P3 = P & { z: number };
 
@@ -177,4 +179,15 @@ export function flattenPoint(solution: P|undefined, maxRowDigits = 2) {
         return -1;
     }
     return Math.pow(10, maxRowDigits) * solution.col + solution.row;
+}
+
+export function createGrid(inputString: string) {
+    const gridInput = new GridRobot<string>();
+    const rows = inputString.split('\n');
+    rows.forEach((row, rindex) => {
+        row.split('').forEach((el, cindex) => {
+            gridInput.set(P(rindex, cindex), el);
+        });
+    });
+    return gridInput;
 }
