@@ -1,4 +1,4 @@
-import {input, testInput1, testInput2, testSol1, testSol2} from "./input";
+import {input, testInput1, testInput2, testInput3, testSol1, testSol2, testSol3} from "./input";
 import {createGrid, Grid, P} from "../util/Grid";
 import {DIR, DIRS, getNewPos} from "../util/GridRobot";
 import {isLetter} from "../util/Strings";
@@ -15,30 +15,31 @@ function getOtherPortalEdge(p: P, portalGrid: Grid<P[]>) {
 export const WALL = '#';
 
 
-function getPosAsKey(movedPos: P) {
+function getPosAsKey(movedPos: P): string {
     return 'r' + movedPos.row + 'c' + movedPos.col;
 }
 
 export class State {
     readonly steps: number;
 
-    constructor(public prevState: State | undefined, readonly p: P, grid: Grid<string>) {
+    constructor(public prevState: State | undefined, readonly p: P, grid: Grid<string>, readonly level: number) {
 
         if (prevState !== undefined) {
             this.steps = prevState.steps + 1
         } else {
             this.steps = 0;
         }
+
         let newPosVal = grid.get(this.p);
         assert.notDeepEqual(newPosVal, undefined, JSON.stringify(p));
     }
 
-    toKeyForBest() {
+    toKeyForBest(): string {
         return getPosAsKey(this.p);
     }
 
-    key() {
-        return this.toKeyForBest();
+    getUUID(): string {
+        return this.toKeyForBest() + 'l' + this.level;
     }
 }
 
@@ -146,7 +147,9 @@ function showSolutionGrid(rawGrid: Grid<string>, solution: State) {
     console.log(solutionGrid.asImage(el => el ?? '-'));
 }
 
-function part1(input: string): State {
+const MAX_LEVEL = 30;
+
+function calcShortestPath(input: string, maxLevel = MAX_LEVEL): State {
     const {rawGrid, portalGrid, portalNameToInfo} = createGridInfo(input);
     // DEBUG &&
     // console.log(rawGrid.asImage(el => el ?? '-'));
@@ -156,29 +159,30 @@ function part1(input: string): State {
     showMergedGrid(rawGrid, portalGrid);
     console.log(JSON.stringify([...portalNameToInfo.entries()]));
 
-    function getNextPosWarped(dir: DIR, p: P, _portalGrid: Grid<P[]>): P[] {
+    function getNextPosWarped(dir: DIR, p: P, _portalGrid: Grid<P[]>): { lc: number, pos: P } {
         const nextPosNormal = getNewPos(dir, p);
         const otherPortalEdges = getOtherPortalEdge(nextPosNormal, _portalGrid);
-        if (otherPortalEdges) {
-            return otherPortalEdges;
+        if (maxLevel >= 0 && otherPortalEdges && otherPortalEdges[0]) {
+            let levelChange = outer({p, dir}, rawGrid) ? -1 : +1;
+            return {lc: levelChange, pos: otherPortalEdges[0]};
         }
-        return [nextPosNormal];
+        return {lc: 0, pos: nextPosNormal};
     }
 
     const startPos = portalNameToInfo.get('AA')![0].p;
     const endPos = portalNameToInfo.get('ZZ')![0].p;
-    const endPosKey = getPosAsKey(endPos);
+    const endPosUUID = getPosAsKey(endPos) + 'l0';
 
 
     DEBUG && console.log(startPos);
     DEBUG && console.log('endPos', endPos);
     const unExploredStatesWDirMap = new Map<string, State>();
     const unExploredStatesWDirList: string[] = [];
-    const bestStepsForState: Map<string, number> = new Map<string, number>();
+    const bestStepsForState: Map<string, State[]> = new Map<string, State[]>();
     let solution: State | undefined = undefined;
 
     function isFinished(state: State | undefined) {
-        return state?.toKeyForBest() === endPosKey
+        return state?.getUUID() === endPosUUID
     }
 
     function isOkState(newState: State) {
@@ -187,18 +191,31 @@ function part1(input: string): State {
         if (newVal !== PASSAGE || isFinished(newState.prevState)) {
             return false;
         }
-
-        const bestNbSteps = bestStepsForState.get(newState.toKeyForBest());
-        if (bestNbSteps === undefined) {
-            return true;
+        if (newState.level < 0) {
+            return false;
         }
-        return bestNbSteps > newState.steps;
+        const bestStateInfos: { steps: number, level: number }[] | undefined = bestStepsForState.get(newState.toKeyForBest());
+        for (let bestStateInfo of bestStateInfos ?? []) {
+            if ((newState.level == bestStateInfo.level || newState.level > maxLevel)
+                // (newState.level % 2 == bestStateInfo.level % 2
+                // && Math.abs(newState.level) >= Math.abs(bestStateInfo.level) && Math.sign(bestStateInfo.level) == Math.sign(newState.level))
+                && newState.steps >= bestStateInfo.steps) {
+                return false
+            }
+        }
+        return true;
     }
 
     function addUnexploredOkState(newState: State) {
-        unExploredStatesWDirMap.set(newState.key(), newState);
-        unExploredStatesWDirList.push(newState.key());
-        bestStepsForState.set(newState.toKeyForBest(), newState.steps);
+        assert.notDeepEqual(newState, undefined);
+        let uuid = newState.getUUID();
+        assert.deepEqual(unExploredStatesWDirList.indexOf(uuid), -1, uuid);
+        unExploredStatesWDirList.push(uuid);
+        unExploredStatesWDirMap.set(uuid, newState);
+        if (bestStepsForState.get(newState.toKeyForBest()) == undefined) {
+            bestStepsForState.set(newState.toKeyForBest(), [])
+        }
+        bestStepsForState.get(newState.toKeyForBest())!.push(newState);
         if (isFinished(newState)) {
             console.assert(solution?.steps ?? Infinity > newState.steps);
             solution = newState;
@@ -208,20 +225,19 @@ function part1(input: string): State {
     function getNextUnexplored(): State {
         let newStateKey = unExploredStatesWDirList.pop()!;
         assert.notDeepEqual(newStateKey, undefined);
+        assert.notDeepEqual(unExploredStatesWDirMap.get(newStateKey), undefined, newStateKey);
         const newState = unExploredStatesWDirMap.get(newStateKey)!;
-        assert.notDeepEqual(newState, undefined);
         unExploredStatesWDirMap.delete(newStateKey);
-        DEBUG && console.log(newState.key());
+        DEBUG && console.log(newState.getUUID());
         return newState;
     }
 
-    function findShortestPath() {
-        const startState = new State(undefined, startPos, rawGrid);
 
-        for (let dir of DIRS) {
-            const newPoss = getNextPosWarped(dir!, startState.p, portalGrid);
-            for (const newPos of newPoss) {
-                const newState = new State(startState, newPos, rawGrid);
+    function findShortestPath() {
+        function addOkUnexploredStates(unExploredOkState: State) {
+            for (let dir of DIRS) {
+                const newPosWithLevelChange = getNextPosWarped(dir!, unExploredOkState.p, portalGrid);
+                const newState = new State(unExploredOkState, newPosWithLevelChange.pos, rawGrid, unExploredOkState.level + newPosWithLevelChange.lc);
                 let okState = isOkState(newState);
                 if (okState) {
                     addUnexploredOkState(newState);
@@ -229,20 +245,11 @@ function part1(input: string): State {
             }
         }
 
-
+        const startState = new State(undefined, startPos, rawGrid, 0);
+        addOkUnexploredStates(startState);
         while (unExploredStatesWDirList.length > 0) {
             const unExploredOkState = getNextUnexplored();
-
-            for (let dir of DIRS) {
-                const newPoss = getNextPosWarped(dir!, unExploredOkState.p, portalGrid);
-                for (const newPos of newPoss) {
-                    const newState = new State(unExploredOkState, newPos, rawGrid);
-                    let okState = isOkState(newState);
-                    if (okState) {
-                        addUnexploredOkState(newState);
-                    }
-                }
-            }
+            addOkUnexploredStates(unExploredOkState);
         }
     }
 
@@ -252,12 +259,18 @@ function part1(input: string): State {
     return solution!;
 }
 
-assert.deepEqual(part1(testInput1).steps, testSol1);
+assert.deepEqual(calcShortestPath(testInput1).steps, 26);
+testSol1;
 console.log('assert.deepEqual(part1(testInput1), testSol1)');
-assert.deepEqual(part1(testInput2).steps, testSol2);
-console.log('assert.deepEqual(part1(testInput2), testSol2)');
-
+// assert.deepEqual(calcShortestPath(testInput2), testSol2);
+// console.log('assert.deepEqual(part1(testInput2), testSol2)');
+assert.deepEqual(calcShortestPath(testInput3).steps, testSol3);
+console.log('assert.deepEqual(part1(testInput3), testSol3)');
+testSol2;
+testSol3;
+testInput2;
+testInput3;
 const solutions: number[] = []
-let solution1 = part1(input);
+let solution1 = calcShortestPath(input);
 
 logAndPushSolution(solution1.steps, solutions);
