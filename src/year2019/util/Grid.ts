@@ -108,13 +108,16 @@ export class Grid<ELTYPE> {
         return result;
     }
 
-    forEach(func: (p: P, val: ELTYPE) => void) {
+    forEach(func: (p: P, val: ELTYPE) => boolean | void) {
         for (let row = this.minRow; row < this.maxRow + 1; row++) {
             for (let col = this.minCol; col < this.maxCol + 1; col++) {
                 const p = P(row, col)
                 const val = this.get(p);
                 if (val !== undefined) {
-                    func(P(row, col), val);
+                    const shouldStop = func(P(row, col), val);
+                    if (shouldStop) {
+                        break;
+                    }
                 }
             }
         }
