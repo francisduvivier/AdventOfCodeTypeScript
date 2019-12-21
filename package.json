@@ -24,6 +24,7 @@
     "day18": "ts-node src/year2019/day18/solution18",
     "day19": "ts-node src/year2019/day19/solution19",
     "day20": "ts-node src/year2019/day20/solution20",
+    "day21": "ts-node src/year2019/day21/solution21",
     "y15day1": "ts-node src/year2015/day1/sol1",
     "year2109": "ts-node src/year2019",
     "gridTest": "ts-node src/year2019/util/GridRobot",

@@ -6,6 +6,7 @@ import {cpP, P} from "../util/Grid";
 import {logAndPushSolution} from "../util/SolutionHandler";
 import {allTruthy, sum} from "../util/MapReduce";
 import * as assert from "assert";
+import {toCharCode, toLetter} from "../util/Strings";
 
 // const BAD_STATE = 'bad state';
 // const badStates = new Set<string>();
@@ -160,10 +161,6 @@ assert.deepEqual(tdToa(TD.L), 'L');
 assert.deepEqual(tdToa(TURN.LEFT as any), 'L');
 assert.deepEqual(tdToa(TURN.RIGHT as any), 'R');
 
-function toCharCode(char: string): number {
-    return char.charCodeAt(0)
-}
-
 assert.deepEqual(toCharCode('\n'), 10);
 assert.deepEqual(toCharCode('^'), 94);
 
@@ -177,10 +174,6 @@ function getNextTurnDir(robot: GridRobot<string>, painter: GridRobot<string>): T
         }
     }
     return possible[0];
-}
-
-function toLetter(t: TURN.LEFT | TURN.RIGHT): string {
-    return t == TURN.LEFT ? 'L' : 'R';
 }
 
 export function getIntCodeInputs(arcade: Arcade): (string | number)[] {
