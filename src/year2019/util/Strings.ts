@@ -6,11 +6,13 @@ export function isLetter(el: string | undefined): el is string {
 }
 
 export function isLowerletter(char: string | undefined) {
-    return isLetter(char) && char.toLowerCase() == char
+    const charCode = char?.charCodeAt(0);
+    return charCode && charCode > 96 && charCode < 123;
 }
 
 export function isUpperletter(char: string | undefined) {
-    return isLetter(char) && char.toUpperCase() == char
+    const charCode = char?.charCodeAt(0);
+    return charCode && charCode > 64 && charCode < 91;
 }
 
 export function sortString(unSortedLetters) {
