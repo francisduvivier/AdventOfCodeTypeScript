@@ -109,18 +109,18 @@ logAndPushSolution(part1(input), solutions);
 
 function getManualProgram2() {
     return [[
-        'NOT C T',
-        'AND D T',
-
-        'OR T J',
-
         'NOT E T',
-        'AND D T',
-
+        'NOT T T',
+        'AND E T',
+        'OR H T',
+        'OR C J',
+        'AND B J',
+        'NOT J J',
+        'AND T J',
+        'AND D J',
+        'NOT A T',
         'OR T J',
 
-        'NOT A T',
-        `OR T J`,
     ]];
 }
 
