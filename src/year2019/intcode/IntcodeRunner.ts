@@ -33,7 +33,7 @@ function getArgs(mem: number[], addresses: number[], modeLettersLeftToRight: MOD
 
 export class IntcodeRunner {
     private relativeBase: number = 0;
-    private readonly ioHandler: IOHandler | undefined;
+    readonly ioHandler: IOHandler | undefined;
     private readonly queuedInput: number[] = [];
     private readonly outputs: number[] = [];
     private lastNextPos: number = 0;
