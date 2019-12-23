@@ -19,7 +19,7 @@ deal with increment 19
 cut -6466
 deal with increment 47
 cut -5860
-deal with increment 65
+deal with increment 65 
 deal into new stack
 cut -8104
 deal with increment 15

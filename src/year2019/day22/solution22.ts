@@ -1,7 +1,8 @@
 import {input} from "./input";
 import * as assert from "assert";
-const DEBUG = false;
-// const DEBUG = true;
+import Long from "long";
+// const DEBUG = false;
+const DEBUG = true;
 
 
 const CUT = 'cut ';
@@ -24,7 +25,7 @@ function doIncrement(startCards: number[], increment: number) {
         const currIndex = (i * increment) % startCards.length;
         assert.deepEqual(newCards[currIndex], undefined, '' + increment + ', i ' + i);
         newCards[currIndex] = startCards[i];
-        startCards.length < 100 && console.log(currIndex, '->', i, startCards.length, increment)
+        // startCards.length < 100 && console.log(currIndex, '->', i, startCards.length, increment)
     }
     return newCards;
 }
@@ -64,7 +65,7 @@ export function testIncrement(incr: number, totalNbCards: number) {
 }
 
 function part1(inputString: string, nbStartCards: number, times: number = 1) {
-
+    DEBUG && console.log('doing part1');
 
     let cards: number[] = [];
     for (let i = 0; i < nbStartCards; i++) {
@@ -199,58 +200,93 @@ assert.deepEqual(
         10000,
         10007), testCut(10007, 30)[10000]);
 
-function doReverseRev(oldTargetPos: number, totalNbCards: number) {
+export function doReverseRev(oldTargetPos: number, totalNbCards: number) {
     oldTargetPos = totalNbCards - 1 - oldTargetPos;
     return oldTargetPos;
 }
 
 
-function shuffleNumber(currTargetPos: number, reversedInstructs: string[], totalNbCards: number) {
-    let oldTargetPos = currTargetPos;
-    for (let op of reversedInstructs) {
+function shuffleNumber(instructsReversed: string[], maxNumber: number) {
+    let m = Long.ONE;
+    let a = Long.ZERO;
+    for (let op of instructsReversed) {
         if (op.startsWith(CUT)) {
             const nbCardsToCut = Number(op.slice(CUT_LEN));
-            oldTargetPos = doCutRev(nbCardsToCut, oldTargetPos, totalNbCards);
-
+            a = a.sub(nbCardsToCut);
         } else if (op.startsWith(INCR)) {
             const increment = Number(op.slice(INCR_LEN));
-            oldTargetPos = doIncrementRev(increment, oldTargetPos, totalNbCards);
+            m = m.mul(increment).mod(maxNumber);
+            a = a.mul(increment).mod(maxNumber);
         } else if (op.startsWith('deal into new stack')) {
-            oldTargetPos = doReverseRev(oldTargetPos, totalNbCards);
-        }
-        if (oldTargetPos == 2020) {
-            throw new Error('inefficient oldTargetPos:' + oldTargetPos);
+            m = m.neg();
+            a = a.neg().sub(1);
         }
     }
-    if (DEBUG && oldTargetPos == currTargetPos) {
-        throw 'inefficient state';
-    }
-    // console.log('shuffleNumber', currTargetPos, oldTargetPos);
-    return oldTargetPos;
+    return {m, a};
 }
 
-function part2(inputString: string, totalNbCards: number, times: number = totalNbCards, targetCard: number) {
-    const instructs = inputString.split('\n');
+function part2(inputString: string, totalNbCards: number, totalNbTimes: number, targetCard: number) {
+    DEBUG && console.log('doing part2');
+    const reversedInstructs = inputString.split('\n');
     const prev2020Positions: number[] = [];
     let curr2020Pos = targetCard;
     DEBUG && assert.deepEqual(prev2020Positions.indexOf(curr2020Pos), -1, '' + curr2020Pos);
     DEBUG && prev2020Positions.push(curr2020Pos);
-    const revInstructs = instructs.reverse();
-    curr2020Pos = shuffleNumber(curr2020Pos, revInstructs, totalNbCards);
-    DEBUG && assert.deepEqual(prev2020Positions.indexOf(curr2020Pos), -1, '' + curr2020Pos);
-    let currTimes = 1;
-    while (curr2020Pos != targetCard && currTimes < times) {
-        DEBUG && assert.deepEqual(prev2020Positions.indexOf(curr2020Pos), -1, '' + curr2020Pos);
-        DEBUG && prev2020Positions.push(curr2020Pos);
-        curr2020Pos = shuffleNumber(curr2020Pos, revInstructs, totalNbCards);
-        currTimes++;
-        DEBUG && console.log('currTimes', currTimes, curr2020Pos);
+    const {m, a} = shuffleNumber(reversedInstructs, totalNbCards);
+    console.log('m,a', m, a);
+    let timesDone = Long.ZERO;
+    let currCTot = Long.ONE;
+    let currYTot = Long.ZERO;
+    while (timesDone.lessThan(totalNbTimes)) {
+        let currY = a;
+        let currC = m;
+        let currPower = 0;
+        while (timesDone.add(Math.pow(2, currPower + 1)).lessThan(totalNbTimes)) {
+            const oldY = currY;
+            currY = currY.mul(currC).mod(totalNbCards).add(oldY);
+            currC = currC.mul(currC).mod(totalNbCards);
+            currPower++;
+        }
+        currCTot = currCTot.mul(currC).mod(totalNbCards);
+        currYTot = currYTot.mul(currC).mod(totalNbCards).add(currY);
+        timesDone = timesDone.add(Math.pow(2, currPower));
     }
-    const remainingTimes = times % currTimes;
-    for (let i = 0; i < remainingTimes; i++) {
-        curr2020Pos = shuffleNumber(curr2020Pos, revInstructs, totalNbCards);
+    assert.deepEqual(timesDone.toNumber(), totalNbTimes);
+
+
+    console.log('FOUND something!', timesDone, `\n${targetCard} = (x* ${currCTot.toString()} +${currYTot.toString()}) mod ${totalNbCards}\n pos [${currCTot.mul(targetCard).add(currYTot).mod(totalNbCards).toString()}]`);
+
+    function isTheOne(kVal: number, mult: Long, add: Long, maxNumb: Long, target: number) {
+        const ktimesMax = maxNumb.neg().mul(kVal);
+        const xNom = (ktimesMax.add(target).sub(add));
+        const result = xNom.mod(mult).isZero();
+        return result ? xNom.div(mult).toNumber() : undefined;
     }
-    console.log(currTimes, remainingTimes);
+
+    let currK = 0;
+    const totalNbCardsL = Long.fromNumber(totalNbCards);
+    let x = isTheOne(currK, currCTot, currYTot, totalNbCardsL, curr2020Pos);
+    const startDate = Date.now();
+    let lastPrint = Date.now();
+
+    console.log('totalNbTimes', totalNbTimes);
+    while (x == undefined) {
+        currK++;
+        x = isTheOne(currK, currCTot, currYTot, totalNbCardsL, curr2020Pos);
+        if (x == undefined) {
+            x = isTheOne(-currK, currCTot, currYTot, totalNbCardsL, curr2020Pos);
+        }
+        if (Date.now() - lastPrint > 1000) {
+            DEBUG && console.log(currK, 1000 * currK / (Date.now() - startDate) + '/s');
+            lastPrint = Date.now();
+        }
+    }
+// curr2020Pos = curr2020Pos/bigPower - a * (m != 1 ? ((1 - bigPower) / bigPower*(1 - m)) : 1);
+    curr2020Pos = x % totalNbCards;
+    if (curr2020Pos < 0) {
+        curr2020Pos = totalNbCards + curr2020Pos;
+    }
+    console.log('curr2020Pos', curr2020Pos)
     return curr2020Pos;
 }
 
@@ -258,28 +294,33 @@ function part2(inputString: string, totalNbCards: number, times: number = totalN
 let times = 0;
 times = 1;
 let inputString = input.split('\n')[0];
-assert.deepEqual(part1(inputString, 10007, times)[2020], part2(inputString, 10007, times, 2020));
+assert.deepEqual(part2(inputString, 10007, times, 2020), part1(inputString, 10007, times)[(2020)]);
 inputString = input.split('\n')[3];
-assert.deepEqual(part1(inputString, 10007, times)[2020], part2(inputString, 10007, times, 2020));
+assert.deepEqual(part2(inputString, 10007, times, 2020), part1(inputString, 10007, times)[(2020)]);
+inputString = input.split('\n')[4];
+assert.deepEqual(part2(inputString, 10007, times, 2020), part1(inputString, 10007, times)[(2020)]);
+inputString = input.split('\n')[7];
+assert.deepEqual(part2(inputString, 10007, times, 2020), part1(inputString, 10007, times)[(2020)]);
 inputString = input.split('\n')[1];
-assert.deepEqual(part1(inputString, 10007, times)[2020], part2(inputString, 10007, times, 2020));
+assert.deepEqual(part2(inputString, 10007, times, 2020), part1(inputString, 10007, times)[(2020)]);
 
-assert.deepEqual(part1(input, 10007, times)[2020], part2(input, 10007, times, 2020));
-assert.deepEqual(part1(input, 10007, times)[214], part2(input, 10007, times, 214));
-assert.deepEqual(part1(input, 10007, times)[9999], part2(input, 10007, times, 9999));
+assert.deepEqual(part2(input, 10007, times, 2020), part1(input, 10007, times)[(2020)]);
+assert.deepEqual(part2(input, 10007, times, 214), part1(input, 10007, times)[(214)]);
+assert.deepEqual(part2(input, 10007, times, 9999), part1(input, 10007, times)[(9999)]);
 
-times = 10;
-// assert.deepEqual(part1(inputString, 10007, times)[2020], part2(inputString, 10007, times, 2020));
-// inputString = input.split('\n')[3];
-// assert.deepEqual(part1(inputString, 10007, times)[2020], part2(inputString, 10007, times, 2020));
-// inputString = input.split('\n')[1];
-// assert.deepEqual(part1(inputString, 10007, times)[2020], part2(inputString, 10007, times, 2020));
-// inputString = input.split('\n').slice(0, 2).join('\n');
-// assert.deepEqual(part1(inputString, 10007, times)[2020], part2(inputString, 10007, times, 2020));
+times = 107;
+input.split('\n')[0];
+assert.deepEqual(part2(inputString, 10007, times, 2020), part1(inputString, 10007, times)[(2020)]);
+inputString = input.split('\n')[1];
+assert.deepEqual(part2(inputString, 10007, times, 2020), part1(inputString, 10007, times)[(2020)]);
+inputString = input.split('\n')[3];
+assert.deepEqual(part2(inputString, 10007, times, 2020), part1(inputString, 10007, times)[(2020)]);
+inputString = input.split('\n').slice(0, 2).join('\n');
+assert.deepEqual(part2(inputString, 10007, times, 2020), part1(inputString, 10007, times)[(2020)]);
+
+// assert.deepEqual(part2(input, 10007, times, 2020), part1(input, 10007, times)[(2020)]);
 //
-// assert.deepEqual(part1(input, 10007, times)[2020], part2(input, 10007, times, 2020));
-
-
+//
 // times = 10007;
 // assert.deepEqual(part1(inputString, 10007, times)[2020], part2(inputString, 10007, times, 2020));
 // console.log('1')
@@ -297,5 +338,8 @@ times = 10;
 
 // assert.deepEqual(part1(input, 10007, times)[2020], part2(input, 10007, times, 2020));
 console.log('simpleSuccess');
-console.log(part2(input, 101741582076661, 101741582076661, 2020));
+// part2(input, 119315717514047, 101741582076661, 59681423049027); fail
+const result = part2(input, 119315717514047, 101741582076661, 2020);
+part2(input, 119315717514047, 101741582076661, result);
+console.log(result);
 // assert.deepEqual(doShuffle(101741582076661, input, 2020, 101741582076661), 1538);
