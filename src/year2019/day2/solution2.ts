@@ -11,7 +11,7 @@ const part1Result = IntcodeRunner.runIntCodeProgram([...inputProgram], 12, 2);
 logAndPushSolution(part1Result, solutions);
 
 // Part 2
-let part2Result = undefined;
+let part2Result: any = undefined;
 for (let noun = 0; noun < 100 && part2Result === undefined; noun++) {
     for (let verb = 0; verb < 100 && part2Result === undefined; verb++) {
         if (IntcodeRunner.runIntCodeProgram([...inputProgram], noun, verb) === 19690720) {
