@@ -15,13 +15,14 @@ const input = `##.#.
 ##...
 ...#.
 #.##.`;
+const DEBUG = false;
 
 function calcBioDev(inputGrid: any) {
     const allTilesRev = [...inputGrid.all()].reverse();
     return allTilesRev.slice(allTilesRev.indexOf('#')).map(val => val == '.' ? '0' : '1').join('');
 }
 
-function part1(inputString: any) {
+export function part1(inputString: any) {
     const bioDevs: string[] = [];
     const bioDevToOrder: Map<string, number> = new Map<string, number>();
     let currGrid: Grid<string> = Grid.fromMatrix<string>(inputString.split('\n').map(line => line.split('')));
@@ -58,7 +59,7 @@ function part1(inputString: any) {
     return currBioDev;
 }
 
-console.log(Long.fromString(part1(input), true, 2).toString());
+// console.log(Long.fromString(part1(input), true, 2).toString());
 type INFO = { b: boolean, surr?: number }
 type REC_GRID = Grid<INFO | REC_GRID>
 
@@ -66,7 +67,7 @@ function isInfo(newVal: INFO | REC_GRID | undefined): newVal is INFO {
     return newVal?.['b'] !== undefined;
 }
 
-function wrapAround(col: Long | number, max: Long | number): Long {
+export function wrapAround(col: Long | number, max: Long | number): Long {
     if (typeof col == 'number') {
         col = Long.fromNumber(col);
     }
@@ -88,9 +89,7 @@ function incrRecGridFrom(grid: REC_GRID, newPos: P, dir: DIR) {
     const goesOutWard = !(newPos.col == 2 && newPos.row == 2);
     let newPositions: P[] = [];
     if (goesOutWard) {
-        const newOutWardColMapped = wrapAround(newPos.col, 6).toNumber();
-        const newOutWardRowMapped = wrapAround(newPos.row, 6).toNumber();
-        newPositions = [P(newOutWardRowMapped, newOutWardColMapped)];
+        newPositions = [getNewPos(dir, P(2, 2))];
     } else {
         switch (dir) {
             case DIR.DOWN:
@@ -114,9 +113,10 @@ function incrRecGridFrom(grid: REC_GRID, newPos: P, dir: DIR) {
     }
 }
 
-const orderedGrids: REC_GRID[] = [];
 
 function part2(inputString: any, minutes: number) {
+    const orderedGrids: REC_GRID[] = [];
+
     const startGrid: REC_GRID = Grid.fromMatrix<INFO | REC_GRID>(inputString.split('\n').map(line => line.split('').map(s => ({b: s == '#'}))));
     startGrid.setRc(2, 2, undefined!);
     const startGridLevel = 500;
@@ -139,13 +139,14 @@ function part2(inputString: any, minutes: number) {
                                     incrRecGridFrom(newVal, newPos, dir);
                                 }
                             } else {
-                                const newOutWardColMapped = wrapAround(newPos.col, 6).toNumber();
-                                const newOutWardRowMapped = wrapAround(newPos.row, 6).toNumber();
-                                if (newPos.row == 2 && newPos.col == 2 || newOutWardRowMapped % 5 == 0 || newOutWardColMapped % 5 == 0) {
+                                // const newOutWardColMapped = wrapAround(newPos.col, 6).toNumber();
+                                // const newOutWardRowMapped = wrapAround(newPos.row, 6).toNumber();
+                                if (newPos.row == 2 && newPos.col == 2 || newPos.col > 4 || newPos.row > 4 || newPos.col < 0 || newPos.row < 0) {
                                     let newGrid: REC_GRID;
-                                    if (newOutWardRowMapped % 5 == 0 || newOutWardColMapped % 5 == 0) {//outer grid
+                                    if (!(newPos.row == 2 && newPos.col == 2)) {//outer grid
                                         newGrid = orderedGrids[level + 1] ?? new Grid();
                                         orderedGrids[level + 1] = newGrid;
+                                        newGrid.set(P(2, 2), grid);
                                     } else {//inner grid
                                         newGrid = new Grid();
                                         orderedGrids[level - 1] = newGrid;
@@ -170,9 +171,9 @@ function part2(inputString: any, minutes: number) {
         let sum = 0;
         for (let level = minLevel; level < orderedGrids.length; level++) {
             const grid = orderedGrids[level];
-            console.log('level ' + (level - startGridLevel));
-            console.log(grid.asImage(el => el ? (isInfo(el) ? el.b ? '#' : '.' : '?') : ' '));
-            console.log(grid.asImage(el => el ? (isInfo(el) ? (el.surr ?? ' ') + '' : '?') : ' '));
+            DEBUG && console.log('level ' + (level - startGridLevel));
+            DEBUG && console.log(grid.asImage(el => el ? (isInfo(el) ? el.b ? '#' : '.' : '?') : ' '));
+            DEBUG && console.log(grid.asImage(el => el ? (isInfo(el) ? (el.surr ?? ' ') + '' : '?') : ' '));
             grid.forEach((p, v) => {
                 if (isInfo(v)) {
                     let newB;
@@ -188,8 +189,8 @@ function part2(inputString: any, minutes: number) {
                     v.surr = 0;
                 }
             });
-            console.log('level after recalc ' + (level - startGridLevel));
-            console.log(grid.asImage(el => el ? (isInfo(el) ? el.b ? '#' : '.' : '?') : ' '));
+            DEBUG && console.log('level after recalc ' + (level - startGridLevel));
+            DEBUG && console.log(grid.asImage(el => el ? (isInfo(el) ? el.b ? '#' : '.' : '?') : ' '));
         }
 
         currSum = sum;
