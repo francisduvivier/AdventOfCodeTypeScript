@@ -1,104 +1,103 @@
 import {input} from "./input";
 import * as assert from "assert";
-import Long from "long";
 import {CUT, CUT_LEN, INCR, INCR_LEN, part1} from "./part1";
 // const DEBUG = false;
 const DEBUG = false;
 
-function shuffleNumber(instructs: string[], maxNumber: Long) {
-    let m = Long.ONE;
-    let a = Long.ZERO;
+function shuffleNumber(instructs: string[], maxNumber: bigint) {
+    let m: bigint = BigInt(1);
+    let a: bigint = BigInt(0);
     for (let op of instructs) {
         if (op.startsWith(CUT)) {
-            const nbCardsToCut = Number(op.slice(CUT_LEN));
-            a = a.sub(nbCardsToCut);
+            const nbCardsToCut = BigInt(op.slice(CUT_LEN));
+            a = a - (nbCardsToCut);
         } else if (op.startsWith(INCR)) {
-            const increment = Number(op.slice(INCR_LEN));
-            m = m.mul(increment).mod(maxNumber);
-            a = a.mul(increment).mod(maxNumber);
+            const increment = BigInt(op.slice(INCR_LEN));
+            m = m * (increment) % (maxNumber);
+            a = a * (increment) % (maxNumber);
         } else if (op.startsWith('deal into new stack')) {
-            m = m.neg();
-            a = a.neg().sub(1);
+            m = -m;
+            a = -(a + 1n);
         }
     }
     return {m, a};
 }
 
-function shuffleNumberTimes(instructs: string[], totalNbCards: Long, totalNbTimes: Long) {
+function shuffleNumberTimes(instructs: string[], totalNbCards: bigint, totalNbTimes: bigint) {
     const {m, a} = shuffleNumber(instructs, totalNbCards);
     const bigPower = `(${m.toString()}**${totalNbTimes.toString()})`;
-    (DEBUG || totalNbTimes.toNumber() > 1000000) && console.log(`m,a formula:\n TARGET= (x* ${bigPower} +${a.toString()} *(1 - ${bigPower})/(1-${m.toString()})) mod ${totalNbCards}\n`);
-    let timesDone = Long.ZERO;
-    let currCTot = Long.ONE;
-    let currYTot = Long.ZERO;
-    while (timesDone.lessThan(totalNbTimes)) {
+    (DEBUG || totalNbTimes > 1000000n) && console.log(`m,a formula:\n TARGET= (x* ${bigPower} +${a.toString()} *(1 - ${bigPower})/(1-${m.toString()})) mod ${totalNbCards}\n`);
+    let timesDone = 0n;
+    let currCTot = 1n;
+    let currYTot = 0n;
+    while (timesDone < (totalNbTimes)) {
         let currY = a;
         let currC = m;
-        let currPower = 0;
-        while (timesDone.add(2 ** (currPower + 1)).lessThan(totalNbTimes)) {
+        let currPower = 0n;
+        while (timesDone + (2n ** (currPower + 1n)) < (totalNbTimes)) {
             const oldY = currY;
-            currY = currY.mul(currC).mod(totalNbCards).add(oldY);
-            currC = currC.mul(currC).mod(totalNbCards);
+            currY = (currY * (currC) + (oldY)) % (totalNbCards);
+            currC = (currC ** 2n) % (totalNbCards);
             currPower++;
         }
-        currCTot = currCTot.mul(currC).mod(totalNbCards);
-        currYTot = currYTot.mul(currC).mod(totalNbCards).add(currY);
-        timesDone = timesDone.add(2 ** currPower);
+        currCTot = (currCTot * (currC)) % (totalNbCards);
+        currYTot = (currYTot * (currC) + (currY)) % (totalNbCards);
+        timesDone = timesDone + (2n ** currPower);
     }
-    assert.deepEqual(timesDone.toString(), totalNbTimes.toString(), '' + timesDone.lessThan(totalNbTimes) + ',' + timesDone.toNumber() + ',' + totalNbTimes.toNumber());
-    (DEBUG || totalNbTimes.toNumber() > 1000000) && console.log('FOUND something!', timesDone.toString(), `\n TARGET= (x* ${currCTot.toString()} +${currYTot.toString()}) mod ${totalNbCards}\n`);
+    assert.deepEqual(timesDone.toString(), totalNbTimes.toString(), '' + (timesDone < (totalNbTimes)) + ',' + timesDone + ',' + totalNbTimes);
+    (DEBUG || totalNbTimes > 1000000n) && console.log('FOUND something!', timesDone.toString(), `\n TARGET= (x* ${currCTot.toString()} +${currYTot.toString()}) mod ${totalNbCards}\n`);
     return {currCTot, currYTot};
 }
 
-function part2(inputString: string, totalNbCards: Long | number, totalNbTimes: Long | number, targetCard: Long | number) {
+function part2(inputString: string, totalNbCards: bigint | number, totalNbTimes: bigint | number, targetCard: bigint | number) {
     if (typeof targetCard == 'number') {
-        targetCard = Long.fromNumber(targetCard);
+        targetCard = BigInt(targetCard);
     }
     if (typeof totalNbCards == 'number') {
-        totalNbCards = Long.fromNumber(totalNbCards);
+        totalNbCards = BigInt(totalNbCards);
     }
     if (typeof totalNbTimes == 'number') {
-        totalNbTimes = Long.fromNumber(totalNbTimes);
+        totalNbTimes = BigInt(totalNbTimes);
     }
     DEBUG && console.log('doing part2');
     const instructs = inputString.split('\n');
     let {currCTot, currYTot} = shuffleNumberTimes(instructs, totalNbCards, totalNbTimes);
-    let reverse = currCTot.mul(targetCard).add(currYTot).mod(totalNbCards);
-    if (reverse.isNegative()) {
-        reverse = reverse.add(totalNbCards);
+    let reverse = currCTot * (targetCard) + (currYTot) % (totalNbCards);
+    if (reverse < 0n) {
+        reverse = reverse + (totalNbCards);
     }
-    (DEBUG || totalNbTimes.toNumber() > 1000000) && console.log('reverse number', reverse.toString());
+    (DEBUG || totalNbTimes > 1000000) && console.log('reverse number', reverse.toString());
 
-    function isTheOne(kVal: number, mult: Long, add: Long, maxNumb: Long, target: Long) {
-        const ktimesMax = maxNumb.neg().mul(kVal);
-        const xNom = (ktimesMax.add(target).sub(add));
-        const result = xNom.mod(mult).isZero();
-        return result ? xNom.div(mult) : undefined;
+    function isTheOne(kVal: bigint, mult: bigint, add: bigint, maxNumb: bigint, target: bigint) {
+        const ktimesMax = maxNumb*(kVal);
+        const xNom = (ktimesMax + (target) - (add));
+        const result = xNom % (mult) == 0n;
+        return result ? xNom/ mult : undefined;
     }
 
-    let currK = 0;
+    let currK = 0n;
     let x = isTheOne(currK, currCTot, currYTot, totalNbCards, targetCard);
     const startDate = Date.now();
     let lastPrint = Date.now();
 
-    DEBUG && console.log('totalNbTimes', totalNbTimes.toNumber());
+    DEBUG && console.log('totalNbTimes', totalNbTimes);
     while (x == undefined) {
         currK++;
         x = isTheOne(currK, currCTot, currYTot, totalNbCards, targetCard);
         if (x == undefined) {
             x = isTheOne(-currK, currCTot, currYTot, totalNbCards, targetCard);
         }
-        if (Date.now() - lastPrint > 1000) {
-            DEBUG && console.log(currK, 1000 * currK / (Date.now() - startDate) + '/s');
+        if (Date.now() - lastPrint > 1000n) {
+            DEBUG && console.log(currK, 1000 * Number(currK.toString()) / (Date.now() - startDate) + '/s');
             lastPrint = Date.now();
         }
     }
 // curr2020Pos = curr2020Pos/bigPower - a * (m != 1 ? ((1 - bigPower) / bigPower*(1 - m)) : 1);
-    let valueAt2020 = x.mod(totalNbCards);
-    if (valueAt2020.isNegative()) {
-        valueAt2020 = valueAt2020.add(totalNbCards);
+    let valueAt2020 = x % (totalNbCards);
+    if (valueAt2020 < 0n) {
+        valueAt2020 = valueAt2020 + (totalNbCards);
     }
-    return {result: valueAt2020.toNumber(), reverse: reverse.toNumber()};
+    return {result: valueAt2020, reverse: reverse};
 }
 
 function doQuickTests() {
@@ -139,6 +138,7 @@ function doQuickTests() {
     checkPart2(input.split('\n')[0], totalNbCards, times);
     checkPart2(input.split('\n').slice(0, 10).join('\n'), totalNbCards, times);
 }
+
 DEBUG &&
 doQuickTests();
 
