@@ -1,13 +1,12 @@
 import {Grid, P} from "../util/Grid";
 import * as assert from "assert";
-import Long from "long";
 import {DIR, DIRS, getNewPos} from "../util/GridRobot";
 
-assert.equal(Long.fromString(calcBioDev(Grid.fromMatrix(`.....
+assert.equal(calcBioDev(Grid.fromMatrix(`.....
 .....
 .....
 #....
-.#...`.split('\n').map(line => line.split('')))), true, 2).toNumber(), 2129920);
+.#...`.split('\n').map(line => line.split('')))), (2129920).toString(2));
 
 
 const input = `##.#.
@@ -29,8 +28,8 @@ export function part1(inputString: any) {
 
 
     let currBioDev = calcBioDev(currGrid);
-    console.log(currGrid.asImage(el => el!));
-    console.log(bioDevs.length);
+    DEBUG && console.log(currGrid.asImage(el => el!));
+    DEBUG && console.log(bioDevs.length);
     while (!bioDevToOrder.get(currBioDev)) {
 
         bioDevToOrder.set(currBioDev, bioDevs.push(currBioDev));
@@ -51,35 +50,20 @@ export function part1(inputString: any) {
             }
         });
         currGrid = newGrid;
-        console.log(currGrid.asImage(el => el!));
-        console.log(bioDevs.length);
+        DEBUG && console.log(currGrid.asImage(el => el!));
+        DEBUG && console.log(bioDevs.length);
         currBioDev = calcBioDev(currGrid);
     }
-    console.log(bioDevToOrder.get(currBioDev));
+    DEBUG && console.log(bioDevToOrder.get(currBioDev));
     return currBioDev;
 }
 
-// console.log(Long.fromString(part1(input), true, 2).toString());
+console.log(Number.parseInt(part1(input), 2));
 type INFO = { b: boolean, surr?: number }
 type REC_GRID = Grid<INFO | REC_GRID>
 
 function isInfo(newVal: INFO | REC_GRID | undefined): newVal is INFO {
     return newVal?.['b'] !== undefined;
-}
-
-export function wrapAround(col: Long | number, max: Long | number): Long {
-    if (typeof col == 'number') {
-        col = Long.fromNumber(col);
-    }
-    if (typeof max == 'number') {
-        max = Long.fromNumber(max, true);
-    }
-    let moddie = col.mod(max);
-    if (!moddie.isNegative()) {
-        return moddie
-    } else {
-        return max.add(moddie);
-    }
 }
 
 const indexes = [0, 1, 2, 3, 4];
@@ -194,7 +178,7 @@ function part2(inputString: any, minutes: number) {
         }
 
         currSum = sum;
-        console.log('minutes', minute, 'currSum', sum, 'levels', orderedGrids.length - minLevel);
+        DEBUG && console.log('minutes', minute, 'currSum', sum, 'levels', orderedGrids.length - minLevel);
     }
     return currSum;
 }
@@ -207,4 +191,4 @@ assert.equal(part2(`....#
 ..#..
 #....`, 10), 99);
 
-part2(input, 200);
+console.log(part2(input, 200));
