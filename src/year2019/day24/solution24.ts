@@ -28,7 +28,7 @@ function part1(inputString: any) {
 
 
     let currBioDev = calcBioDev(currGrid);
-    console.log(currGrid.asImage(el => el!))
+    console.log(currGrid.asImage(el => el!));
     console.log(bioDevs.length);
     while (!bioDevToOrder.get(currBioDev)) {
 
@@ -94,13 +94,17 @@ function incrRecGridFrom(grid: REC_GRID, newPos: P, dir: DIR) {
     } else {
         switch (dir) {
             case DIR.DOWN:
-                return indexes.map(i => P(0, i))
+                newPositions = indexes.map(i => P(0, i));
+                break;
             case DIR.UP:
-                return indexes.map(i => P(4, i))
+                newPositions = indexes.map(i => P(4, i));
+                break;
             case DIR.RIGHT:
-                return indexes.map(i => P(i, 0));
+                newPositions = indexes.map(i => P(i, 0));
+                break;
             case DIR.LEFT:
-                return indexes.map(i => P(i, 4))
+                newPositions = indexes.map(i => P(i, 4));
+                break;
         }
     }
     for (let pos of newPositions) {
@@ -110,36 +114,96 @@ function incrRecGridFrom(grid: REC_GRID, newPos: P, dir: DIR) {
     }
 }
 
-function part2(inputString: any) {
-    const recGrid: REC_GRID = Grid.fromMatrix<string>(inputString.split('\n').map(line => line.split('').map(s => ({b: s == '#'}))));
-    recGrid.setRc(2, 2, undefined!);
-    for (let i = 0; i < 200; i++) {
-        recGrid.forEach((p, v) => {
-            for (let dir of DIRS) {
-                {
-                    const newPos = getNewPos(dir, p);
-                    const newVal = recGrid.get(newPos);
-                    if (newVal !== undefined) {
-                        if (isInfo(newVal)) {
-                            newVal.surr = (newVal.surr || 0) + 1;
-                        } else {
-                            incrRecGridFrom(newVal, newPos, dir);
-                        }
-                    } else {
-                        if (newPos.row % 4 == 0 || newPos.col % 4 == 0 || newPos.row == 2 && newPos.col == 2) {
-                            const currVal = {b: false} as INFO;
-                            currVal.surr = (currVal.surr || 0) + 1;
-                            recGrid.set(newPos, currVal);
-                        } else {
-                            const newVal: REC_GRID = new Grid();
-                            incrRecGridFrom(newVal, newPos, dir);
+const orderedGrids: REC_GRID[] = [];
+
+function part2(inputString: any, minutes: number) {
+    const startGrid: REC_GRID = Grid.fromMatrix<INFO | REC_GRID>(inputString.split('\n').map(line => line.split('').map(s => ({b: s == '#'}))));
+    startGrid.setRc(2, 2, undefined!);
+    const startGridLevel = 500;
+    let minLevel = startGridLevel;
+    orderedGrids[500] = startGrid;
+    let currSum = 0;
+    for (let minute = 0; minute < minutes; minute++) {
+        for (let level = minLevel; level < orderedGrids.length; level++) {
+            const grid = orderedGrids[level];
+            grid.forEach((p, v) => {
+                if (isInfo(v) && v.b) {
+                    for (let dir of DIRS) {
+                        {
+                            const newPos = getNewPos(dir, p);
+                            const newVal = grid.get(newPos);
+                            if (newVal !== undefined) {
+                                if (isInfo(newVal)) {
+                                    newVal.surr = (newVal.surr || 0) + 1;
+                                } else {
+                                    incrRecGridFrom(newVal, newPos, dir);
+                                }
+                            } else {
+                                const newOutWardColMapped = wrapAround(newPos.col, 6).toNumber();
+                                const newOutWardRowMapped = wrapAround(newPos.row, 6).toNumber();
+                                if (newPos.row == 2 && newPos.col == 2 || newOutWardRowMapped % 5 == 0 || newOutWardColMapped % 5 == 0) {
+                                    let newGrid: REC_GRID;
+                                    if (newOutWardRowMapped % 5 == 0 || newOutWardColMapped % 5 == 0) {//outer grid
+                                        newGrid = orderedGrids[level + 1] ?? new Grid();
+                                        orderedGrids[level + 1] = newGrid;
+                                    } else {//inner grid
+                                        newGrid = new Grid();
+                                        orderedGrids[level - 1] = newGrid;
+                                        minLevel = Math.min(level - 1, minLevel);
+                                    }
+
+                                    incrRecGridFrom(newGrid!, newPos, dir);
+                                    grid.set(newPos, newGrid);
+                                } else {
+                                    const currVal = {b: false} as INFO;
+                                    currVal.surr = (currVal.surr || 0) + 1;
+                                    grid.set(newPos, currVal);
+                                }
+
+                            }
                         }
                     }
                 }
-            }
-        })
-    }
+            })
+        }
 
+        let sum = 0;
+        for (let level = minLevel; level < orderedGrids.length; level++) {
+            const grid = orderedGrids[level];
+            console.log('level ' + (level - startGridLevel));
+            console.log(grid.asImage(el => el ? (isInfo(el) ? el.b ? '#' : '.' : '?') : ' '));
+            console.log(grid.asImage(el => el ? (isInfo(el) ? (el.surr ?? ' ') + '' : '?') : ' '));
+            grid.forEach((p, v) => {
+                if (isInfo(v)) {
+                    let newB;
+                    if (v.b) {
+                        newB = v.surr == 1
+                    } else {
+                        newB = v.surr == 1 || v.surr == 2
+                    }
+                    if (newB) {
+                        sum++;
+                    }
+                    v.b = newB;
+                    v.surr = 0;
+                }
+            });
+            console.log('level after recalc ' + (level - startGridLevel));
+            console.log(grid.asImage(el => el ? (isInfo(el) ? el.b ? '#' : '.' : '?') : ' '));
+        }
+
+        currSum = sum;
+        console.log('minutes', minute, 'currSum', sum, 'levels', orderedGrids.length - minLevel);
+    }
+    return currSum;
 }
 
-part2(input);
+//102 too low
+
+assert.equal(part2(`....#
+#..#.
+#.?##
+..#..
+#....`, 10), 99);
+
+part2(input, 200);
