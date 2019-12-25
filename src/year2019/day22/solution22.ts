@@ -142,6 +142,7 @@ function doQuickTests() {
 DEBUG &&
 doQuickTests();
 
+part2(input, 119315717514047, 101741582076661, 96196710942473);
 part2(input, 119315717514047, 101741582076661, 2020);
 
 
