@@ -28,6 +28,7 @@
     "day22": "ts-node src/year2019/day22/solution22",
     "day23": "ts-node src/year2019/day23/solution23",
     "day24": "ts-node src/year2019/day24/solution24",
+    "day25": "ts-node src/year2019/day25/solution25",
     "y15day1": "ts-node src/year2015/day1/sol1",
     "year2109": "ts-node src/year2019",
     "gridTest": "ts-node src/year2019/util/GridRobot",
@@ -37,6 +38,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/node": "^12.12.14",
+    "readline-sync": "^1.4.10",
     "ts-node": "^8.5.4",
     "typescript": "^3.7.3"
   }
