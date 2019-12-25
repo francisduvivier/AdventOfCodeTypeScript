@@ -13,8 +13,8 @@ function shuffleNumber(instructs: string[], maxNumber: bigint) {
             a = a - (nbCardsToCut);
         } else if (op.startsWith(INCR)) {
             const increment = BigInt(op.slice(INCR_LEN));
-            m = m * (increment) % (maxNumber);
-            a = a * (increment) % (maxNumber);
+            m = (m * (increment)) % (maxNumber);
+            a = (a * (increment)) % (maxNumber);
         } else if (op.startsWith('deal into new stack')) {
             m = -m;
             a = -(a + 1n);
@@ -62,17 +62,17 @@ function part2(inputString: string, totalNbCards: bigint | number, totalNbTimes:
     DEBUG && console.log('doing part2');
     const instructs = inputString.split('\n');
     let {currCTot, currYTot} = shuffleNumberTimes(instructs, totalNbCards, totalNbTimes);
-    let reverse = currCTot * (targetCard) + (currYTot) % (totalNbCards);
+    let reverse = (currCTot * (targetCard) + (currYTot)) % (totalNbCards);
     if (reverse < 0n) {
         reverse = reverse + (totalNbCards);
     }
     (DEBUG || totalNbTimes > 1000000) && console.log('reverse number', reverse.toString());
 
     function isTheOne(kVal: bigint, mult: bigint, add: bigint, maxNumb: bigint, target: bigint) {
-        const ktimesMax = maxNumb*(kVal);
+        const ktimesMax = maxNumb * (kVal);
         const xNom = (ktimesMax + (target) - (add));
         const result = xNom % (mult) == 0n;
-        return result ? xNom/ mult : undefined;
+        return result ? xNom / mult : undefined;
     }
 
     let currK = 0n;
