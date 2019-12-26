@@ -82,6 +82,5 @@ export function runPart1() {
     assert.deepEqual(part1(testInput3, 10), testSol3);
 
     const actual = part1(input, 10007).indexOf(2019);
-    console.log(actual);
-    assert.deepEqual(actual, 1538);
+    return actual;
 }
