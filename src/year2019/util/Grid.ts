@@ -2,7 +2,7 @@ export type P = { row: number; col: number };
 export type P3 = P & { z: number };
 
 export function P(row: number, col: number): P {
-    return {col, row}
+    return {row, col}
 }
 
 export function cpP(p: P): P {
@@ -43,7 +43,7 @@ export function identity(input: any) {
     return input;
 }
 
-export class Grid<ELTYPE> {
+export class Grid<ELTYPE = string> {
     private matrix: Map<string, ELTYPE | undefined> = new Map<string, ELTYPE | undefined>();
     private maxCol: number = 0;
     private maxRow: number = 0;
@@ -192,12 +192,12 @@ export function flattenPoint(solution: P | undefined, maxRowDigits = 2) {
     return Math.pow(10, maxRowDigits) * solution.col + solution.row;
 }
 
-export function createGrid(inputString: string) {
-    const gridInput = new Grid<string>();
-    const rows = inputString.split('\n');
+export function createGrid<T>(inputString: string) {
+    const gridInput = new Grid<T>();
+    const rows = inputString.split('\n').map(row=>row.replaceAll('\r',''));
     rows.forEach((row, rindex) => {
         row.split('').forEach((el, cindex) => {
-            gridInput.set(P(rindex, cindex), el);
+            gridInput.set(P(rindex, cindex), el as any);
         });
     });
     return gridInput;

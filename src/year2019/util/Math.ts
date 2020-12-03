@@ -28,3 +28,8 @@ function findLCM2(val1: number, val2: number) {
     }
     return currMultiple;
 }
+
+
+export function multiply(values: number[]) {
+    return values.reduce((prev, curr) => prev * curr, 1);
+}
