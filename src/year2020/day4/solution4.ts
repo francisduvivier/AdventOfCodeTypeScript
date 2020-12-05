@@ -82,5 +82,5 @@ function part2(input) {
 console.log('part1 test', part1(tInput));
 console.log('part1', part1(rInput));
 
-console.log('part2', part2(tInput));
+console.log('part2 test', part2(tInput));
 console.log('part2', part2(rInput));

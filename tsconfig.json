@@ -9,8 +9,9 @@
     "noImplicitAny": false,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "allowUnreachableCode": false,
-    "noEmit": true
+    "noEmit": true,
+    "noImplicitReturns": true
   }
 }

@@ -194,7 +194,7 @@ export function flattenPoint(solution: P | undefined, maxRowDigits = 2) {
 
 export function createGrid<T>(inputString: string) {
     const gridInput = new Grid<T>();
-    const rows = inputString.split('\n').map(row=>row.replaceAll('\r',''));
+    const rows = inputString.split('\n').map(row=>row.replace(/\r/g,''));
     rows.forEach((row, rindex) => {
         row.split('').forEach((el, cindex) => {
             gridInput.set(P(rindex, cindex), el as any);
