@@ -9,6 +9,9 @@ export type Summable = string | number;
 export function sum(mArray: number[]): number;
 export function sum(mArray: string[]): string;
 export function sum<T extends Summable>(mArray: T[]): T {
+    if (!mArray?.length) {
+        return 0 as T;
+    }
     return mArray.reduce((first, next) => {
         return <any>first + next;
     });
@@ -22,6 +25,16 @@ export function allTruthy(values: any[]): boolean {
     }
     return true;
 }
+
+export function anyTruthy(values: any[]): boolean {
+    for (const value of values) {
+        if (value) {
+            return true;
+        }
+    }
+    return false;
+}
+
 
 export function calcTimesElem(someArray: number[], searchElem: number) {
     return someArray.reduce((curr, nb) => nb == searchElem ? curr + 1 : curr, 0);
