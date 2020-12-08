@@ -1,4 +1,4 @@
-import {IOHandler} from "../day11/solution11";
+import { IOHandler } from "../day11/solution11";
 
 const enum MODELETTER {
     POSITION_MODE = 0,
@@ -18,10 +18,10 @@ function getModeLettersLtoR(modesString: string): MODELETTER[] {
     return [...modesString].reverse().map(toModeLetter);
 }
 
-function getArgs(mem: number[], addresses: number[], modeLettersLeftToRight: MODELETTER[]) {
-    const args: number[] = [];
+function getArgs(mem: (number | string)[], addresses: (string | number)[], modeLettersLeftToRight: MODELETTER[]) {
+    const args: (string | number)[] = [];
     for (let i = 0; i < addresses.length; i++) {
-        if (modeLettersLeftToRight[i] === MODELETTER.IMMEDIATE_MODE) {
+        if (typeof addresses[i] == 'string' || modeLettersLeftToRight[i] === MODELETTER.IMMEDIATE_MODE) {
             args[i] = addresses[i] || 0
         } else {
             args[i] = mem[addresses[i]] || 0
@@ -35,10 +35,10 @@ export class IntcodeRunner {
     private relativeBase: number = 0;
     readonly ioHandler: IOHandler | undefined;
     private readonly queuedInput: number[] = [];
-    private readonly outputs: number[] = [];
+    private readonly outputs: (number | string)[] = [];
     private lastNextPos: number = 0;
 
-    constructor(private readonly mem: number[], queuedInput?: number[], ioHandler?: IOHandler) {
+    constructor(private readonly mem: (number | string)[], queuedInput?: number[], ioHandler?: IOHandler) {
         this.ioHandler = ioHandler;
         if (queuedInput !== undefined) {
             this.queueInput(...queuedInput);
@@ -72,7 +72,7 @@ export class IntcodeRunner {
         return output;
     }
 
-    getAllOutput(): number[] {
+    getAllOutput(): (number | string)[] {
         return this.outputs.splice(0);
     }
 
@@ -80,7 +80,7 @@ export class IntcodeRunner {
         return this.lastNextPos;
     }
 
-    doOutput(arg: number) {
+    doOutput(arg: number | string) {
         if (this.ioHandler) {
             this.ioHandler.doOutput(arg);
         }
@@ -89,28 +89,40 @@ export class IntcodeRunner {
 
     processOpCode(pos: number) {
         let instruct = `${this.mem[pos]}`;
-        const opCode = Number(instruct.slice(instruct.length - 2));
-        // console.log(`opCode [${opCode}] instruct [${instruct}]`);
-        const modesString: string = instruct.slice(0, instruct.length - 2);
+        let opCode
+        let modesString: string
+        let args = [];
+        let newMode = false;
+        if (instruct.match('^[a-z]+ [+-][0-9]+$')) {
+            let tuple = instruct.split(' ');
+            opCode = tuple[0]
+            modesString = ``
+            args = [tuple[1]]
+            newMode = true
+        } else {
+            opCode = instruct.slice(instruct.length - 2);
+            modesString = instruct.slice(0, instruct.length - 2);
+        }
+        console.log(`opCode [${opCode}] instruct [${instruct}]`);
         let nbArgs = 0;
-        let nextPos = 0;
-        let operation: (addrss: number[], args: number[]) => void = () => {
+        let nextPos: number | string = 0;
+        let operation: (addrss: (number | string)[], args: (number | string)[]) => void = () => {
         };
         let waitingForInput = false;
         switch (opCode) {
-            case 1:
+            case '1': //Add
                 nbArgs = 3;
                 operation = (addrss, args) => {
-                    this.mem[addrss[2]] = args[0] + args[1];
+                    this.mem[addrss[2]] = Number(args[0]) + Number(args[1]);
                 };
                 break;
-            case 2:
+            case '2': //Multiply
                 nbArgs = 3;
                 operation = (addrss, args) => {
-                    this.mem[addrss[2]] = args[0] * args[1];
+                    this.mem[addrss[2]] = Number(args[0]) * Number(args[1]);
                 };
                 break;
-            case 3:
+            case '3': //JUMP to INPUT
                 nbArgs = 1;
                 operation = (addrss) => {
                     let input = this.getInput();
@@ -121,13 +133,14 @@ export class IntcodeRunner {
                     }
                 };
                 break;
-            case 4:
+            case 'acc':
+            case '4': //Do OUTPUT
                 nbArgs = 1;
                 operation = (addrss, args) => {
                     this.doOutput(args[0]);
                 };
                 break;
-            case 5:
+            case '5': // JUMP IF NOT 0
                 nbArgs = 2;
                 operation = (addrss, args) => {
                     if (args[0] !== 0) {
@@ -135,7 +148,7 @@ export class IntcodeRunner {
                     }
                 };
                 break;
-            case 6:
+            case '6': // JUMP IF 0
                 nbArgs = 2;
                 operation = (addrss, args) => {
                     if (args[0] === 0) {
@@ -143,25 +156,37 @@ export class IntcodeRunner {
                     }
                 };
                 break;
-            case 7:
+            case '7': // SMALLER THAN
                 nbArgs = 3;
                 operation = (addrss, args) => {
                     this.mem[addrss[2]] = args[0] < args[1] ? 1 : 0;
                 };
                 break;
-            case 8:
+            case '8': // EQUAL THAN
                 nbArgs = 3;
                 operation = (addrss, args) => {
                     this.mem[addrss[2]] = args[0] === args[1] ? 1 : 0;
                 };
                 break;
-            case 9:
+            case 'jmp':
                 nbArgs = 1;
                 operation = (addrss, args) => {
-                    this.relativeBase += args[0];
+                    let jumpAmount = Number(args[0]);
+                    nextPos = pos + jumpAmount
                 };
                 break;
-            case 99:
+            case '9': // CHANGE RELATIVE BASE
+                nbArgs = 1;
+                operation = (addrss, args) => {
+                    this.relativeBase += Number(args[0]);
+                };
+                break;
+            case 'nop': // CHANGE RELATIVE BASE
+                nbArgs = 1;
+                operation = () => {
+                };
+                break;
+            case '99': // STOP?
                 nbArgs = NaN;
                 operation = () => {
                     nextPos = -1;
@@ -170,18 +195,25 @@ export class IntcodeRunner {
             default:
                 throw `unknown intcode [${this.mem[pos]}] at pos [${pos}]`
         }
-        const addresses: number[] = [];
+        const addresses: (number | string)[] = [];
         const modeLettersLtoR = getModeLettersLtoR(modesString);
+        const isNumber = (n: any) => {
+            return typeof n === 'number';
+        };
         for (let i = 0; i < nbArgs; i++) {
             addresses[i] = this.mem[(pos + 1 + i)];
-            if (modeLettersLtoR[i] === MODELETTER.RELATIVE_MODE) {
-                addresses[i] += this.relativeBase;
+            if (isNumber(addresses[i]) && modeLettersLtoR[i] === MODELETTER.RELATIVE_MODE) {
+                (addresses[i] as number) += this.relativeBase;
             }
         }
         // console.log(`addresses [${addresses}]`);
-        const args = getArgs(this.mem, addresses, modeLettersLtoR);
+        if (!newMode) {
+            args = getArgs(this.mem, addresses, modeLettersLtoR);
+            nextPos = nbArgs >= 0 ? pos + 1 + nbArgs : NaN;
+        } else {
+            nextPos = pos + 1
+        }
         // console.log(`args [${args}]`);
-        nextPos = nbArgs >= 0 ? pos + 1 + nbArgs : NaN;
         operation(addresses, args);
         if (waitingForInput) {
             return -1
@@ -194,9 +226,15 @@ export class IntcodeRunner {
         this.queuedInput.push(...inputs);
     }
 
+    private readonly donePointers = [];
+
     run(startPointer?: number) {
         let instructionPointer = startPointer || this.lastNextPos;
         while (instructionPointer >= 0 && instructionPointer < this.mem.length) {
+            if (this.donePointers.indexOf(instructionPointer) != -1) {
+                return -1;
+            }
+            this.donePointers.push(instructionPointer)
             instructionPointer = this.processOpCode(instructionPointer);
         }
         return this.getMemValue(0);
