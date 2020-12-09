@@ -1,4 +1,7 @@
-12
+export const rInput  = getRealRaw().split('\n').map(n=>Number(n))
+
+function getRealRaw() {
+    return `12
 26
 18
 15
@@ -997,4 +1000,5 @@
 54126265473781
 75687933974139
 61315145285247
-90655775622556
+90655775622556`
+}

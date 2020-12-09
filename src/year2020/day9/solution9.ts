@@ -1,8 +1,6 @@
 import { logAndPushSolution } from "../../year2019/util/SolutionHandler";
-import fs from "fs";
+import { rInput } from "./input";
 
-const rInput = fs.readFileSync('./src/year2020/day9/input.txt', { encoding: 'UTF8' }).split('\n').map(n => (+n));
-const tInput = fs.readFileSync('./src/year2020/day9/testinput.txt', { encoding: 'UTF8' }).split('\n').map(n => (+n));
 const input
     = rInput;
 // = tInput;
