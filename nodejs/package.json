@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "day1": "ts-node src/year2020/day1/solution1",
+    "day1": "ts-node src/year2020/day1/solution1",
     "day2": "ts-node src/year2020/day2/solution2",
     "day3": "ts-node src/year2020/day3/solution3",
     "day4": "ts-node src/year2020/day4/solution4",
