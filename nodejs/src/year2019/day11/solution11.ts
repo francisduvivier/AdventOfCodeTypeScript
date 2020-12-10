@@ -5,9 +5,9 @@ import * as assert from "assert";
 import {logAndPushSolution} from "../util/SolutionHandler";
 
 export interface IOHandler {
-    getInput(): number|string;
+    getInput(): number;
 
-    doOutput(output: number|string): void;
+    doOutput(output: number): void;
 }
 
 const enum COLOR {
