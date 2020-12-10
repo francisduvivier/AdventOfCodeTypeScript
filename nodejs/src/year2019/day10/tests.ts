@@ -9,7 +9,7 @@ export function runTests() {
 
     assert.deepEqual(same(5, 5.001), false);
 
-    assert.deepEqual(same(5, 5.00001), true);
+    assert.deepEqual(same(5, 5.0000001), true);
 
     assert.deepEqual(findMostVisibleAsteroid(testInput1)[0].solution, {row: 8, col: 5, friends: 33});
 

@@ -31,8 +31,8 @@
     "day24": "ts-node src/year2020/day24/solution24",
     "day25": "ts-node src/year2020/day25/solution25",
     "y15day1": "ts-node src/year2015/day1/sol1",
-    "year2109": "ts-node src/year2019",
-    "gridTest": "ts-node src/year2019/util/GridRobot",
+    "year2109": "ts-node --project src/year2019/tsconfig.json src/year2019",
+    "gridTest": "ts-node src/year2019/util/GridRobot -c src/year2019/tsconfig.json",
     "z": "echo 'last script placeholder without comma'"
   },
   "author": "",
