@@ -1,5 +1,5 @@
-import { logAndPushSolution } from "../../year2019/util/SolutionHandler";
-import { rInput, tInput } from "./input";
+import { logAndPushSolution } from "../../year2019/util/SolutionHandler.ts";
+import { rInput } from "./input.ts";
 
 const solutionArray = []
 
@@ -26,7 +26,7 @@ function part2() {
     const input = rInput.sort((a, b) => a - b);
     const sorted = input
     let prev = 0;
-    const diffList = [];
+    const diffList = [] as number[];
     for (let i1 = 0; i1 < input.length; i1++) {
         let curr = sorted[i1];
         diffList.push(curr - prev);

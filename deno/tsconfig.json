@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "lib": [
+      "esnext"
+    ],
+    "strict": false,
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": false,
+    "allowUnreachableCode": false,
+    "noEmit": true,
+    "noImplicitReturns": true,
+  }
+}

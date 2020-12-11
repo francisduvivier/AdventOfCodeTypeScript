@@ -13,4 +13,6 @@ export function logAndPushSolution(part: number | string, solutionArray: (number
     }
     part1 = !part1;
     console.log(`Part ${solutionArray.length}:`, part);
+
 }
+
