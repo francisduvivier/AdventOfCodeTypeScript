@@ -140,19 +140,6 @@ enum JOYPOS {
     E = 4,
 }
 
-export function windToDir(windDir: JOYPOS): DIR {
-    switch (windDir) {
-        case JOYPOS.N:
-            return DIR.UP;
-        case JOYPOS.S:
-            return DIR.DOWN;
-        case JOYPOS.W:
-            return DIR.LEFT;
-        case JOYPOS.E:
-            return DIR.RIGHT;
-    }
-}
-
 export function dirWind(dir: DIR): JOYPOS {
     switch (dir) {
         case DIR.UP:

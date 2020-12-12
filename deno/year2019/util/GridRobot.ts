@@ -27,7 +27,22 @@ export const ARROWS: ARROW[] = Object.values(ARROW);
 export const DIRNAMES: (keyof ARROW)[] = Object.keys(ARROW) as (keyof ARROW & string)[];
 
 export function isArrow(d: string): d is ARROW {
-    return ARROWS.indexOf(d as any) !== -1
+    return ARROWS.indexOf(d as any) !== -1;
+}
+
+type WindDir = 'N' | 'S' | 'E' | 'W';
+
+export function windToDir(windDir: WindDir): DIR {
+    switch (windDir) {
+        case 'N':
+            return DIR.UP;
+        case 'S':
+            return DIR.DOWN;
+        case 'W':
+            return DIR.LEFT;
+        case 'E':
+            return DIR.RIGHT;
+    }
 }
 
 export function arrowToDir(dir: ARROW): DIR {
@@ -41,7 +56,7 @@ export function arrowToDir(dir: ARROW): DIR {
         case ARROW.UP:
             return DIR.UP;
         default:
-            throw 'invalid dir ' + dir
+            throw 'invalid dir ' + dir;
     }
 }
 
@@ -64,7 +79,7 @@ export function getNewPos(dir: DIR, p: P): P {
         case DIR.UP:
             return { row: p.row - 1, col: p.col };
         default:
-            throw 'invalid dir ' + dir
+            throw 'invalid dir ' + dir;
     }
 }
 
@@ -77,6 +92,7 @@ export function getNewDir(currAbsDir: DIR, turnDir: TURN): DIR {
 
 export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
     nbMoves: number = 0;
+    private cd: P = P(0, 0);
 
     get val(): ELTYPE | undefined {
         return this.get(this.p);
@@ -113,21 +129,36 @@ export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
         }
     }
 
+    moveCD(times = 1) {
+        this.nbMoves++;
+        for (let i = 0; i < times; i++) {
+            this.p = P(this.p.row + this.cd.row, this.p.col + this.cd.col);
+        }
+    }
+
+    moveWindDir(windDir: WindDir, times = 1) {
+        this.nbMoves++;
+        for (let i = 0; i < times; i++) {
+            const dir = windToDir(windDir);
+            this.p = getNewPos(dir, this._p);
+        }
+    }
+
     turn(t: TURN) {
         this._d = getNewDir(this._d, t);
     }
 
     paint(output: ELTYPE) {
-        this.set(this.p, output)
+        this.set(this.p, output);
     }
 
     paintNext(output: ELTYPE) {
         const newPos = getNewPos(this._d, this._p);
-        this.set(newPos, output)
+        this.set(newPos, output);
     }
 
     getNewDir(turnDir: TURN) {
-        return getNewDir(this.d, turnDir)
+        return getNewDir(this.d, turnDir);
     }
 
     getNextPos(dir: DIR = this.d): P {
@@ -140,7 +171,7 @@ export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
 
     paintNextDir(output: ELTYPE, dir: DIR) {
         const newPos = getNewPos(dir, this._p);
-        this.set(newPos, output)
+        this.set(newPos, output);
     }
 
     posToKeyWDir(d: DIR): string {
@@ -152,6 +183,24 @@ export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
         super.clear();
         this._p = P(0, 0);
     }
+
+    rotateAroundOrigin(degrees) {
+        this.p = rotate(this.p, degrees);
+    }
+
+    turnToComplexDir(p: P) {
+        this.cd = p;
+    }
+}
+
+export function rotate(point: P, degrees: number): P {
+    const y = -point.row;
+    const x = point.col;
+    const cos = Math.round(Math.cos(degrees * Math.PI / 180)) + 0;
+    const sin = Math.round(Math.sin(degrees * Math.PI / 180)) + 0;
+    const newX = cos * x - sin * y;
+    const newY = cos * y + sin * x;
+    return P(-newY, newX);
 }
 
 runTests();
