@@ -1,20 +1,26 @@
 import { runTests } from "./GridTest.ts";
-import { Grid, P } from "./Grid.ts";
+import { cpP, Grid, P } from "./Grid.ts";
 
 export enum TURN {
-    LEFT,
-    RIGHT,
-    NOTURN
+    LEFT = 90,
+    RIGHT = -90,
+    NOTURN = 0
 }
 
-export enum DIR {
-    UP = 0,
-    LEFT = 1,
-    DOWN = 2,
-    RIGHT = 3,
-}
-
-export const DIRS: DIR[] = Object.values(DIR).filter(k => typeof k == 'number') as DIR[];
+export const DIR = {
+    UP: { row: -1, col: 0 },
+    DOWN: { row: 1, col: 0 },
+    LEFT: { row: 0, col: -1 },
+    RIGHT: { row: 0, col: 1 },
+} as const;
+export type DIRNAME = keyof typeof DIR;
+export type DIR = typeof DIR[keyof typeof DIR];
+export const DIRS = [DIR.UP, DIR.DOWN, DIR.LEFT, DIR.RIGHT] as const;
+export const DIRROWCOLMAP: { [key: string]: { [key: string]: DIR } } = {
+    '-1': { '0': DIR.UP },
+    '1': { '0': DIR.DOWN },
+    '0': { '1': DIR.RIGHT, '-1': DIR.LEFT }
+};
 
 export enum ARROW {
     UP = '^',
@@ -60,39 +66,20 @@ export function arrowToDir(dir: ARROW): DIR {
     }
 }
 
-export function dirToArrow(dir: DIR): ARROW {
-    return (ARROW as any)[DIR[dir]];
-}
-
 export function getNewPosForArrow(dir: ARROW, p: P): P {
     return getNewPos(arrowToDir(dir), p);
 }
 
 export function getNewPos(dir: DIR, p: P): P {
-    switch (dir) {
-        case DIR.DOWN:
-            return { row: p.row + 1, col: p.col };
-        case DIR.LEFT:
-            return { row: p.row, col: p.col - 1 };
-        case DIR.RIGHT:
-            return { row: p.row, col: p.col + 1 };
-        case DIR.UP:
-            return { row: p.row - 1, col: p.col };
-        default:
-            throw 'invalid dir ' + dir;
-    }
+    return P(p.row + dir.row, p.col + dir.col);
 }
 
-export function getNewDir(currAbsDir: DIR, turnDir: TURN): DIR {
-    if (turnDir == TURN.NOTURN) {
-        return currAbsDir;
-    }
-    return (currAbsDir + (turnDir == TURN.LEFT ? 1 : 3)) % 4;
+export function getNewDir(currAbsDir: DIR, degrees: number): DIR {
+    return rotate(currAbsDir, degrees) as DIR;
 }
 
 export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
     nbMoves: number = 0;
-    private cd: P = P(0, 0);
 
     get val(): ELTYPE | undefined {
         return this.get(this.p);
@@ -129,17 +116,10 @@ export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
         }
     }
 
-    moveCD(times = 1) {
-        this.nbMoves++;
-        for (let i = 0; i < times; i++) {
-            this.p = P(this.p.row + this.cd.row, this.p.col + this.cd.col);
-        }
-    }
-
     moveWindDir(windDir: WindDir, times = 1) {
         this.nbMoves++;
+        const dir = windToDir(windDir);
         for (let i = 0; i < times; i++) {
-            const dir = windToDir(windDir);
             this.p = getNewPos(dir, this._p);
         }
     }
@@ -175,7 +155,7 @@ export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
     }
 
     posToKeyWDir(d: DIR): string {
-        return JSON.stringify(this.p) + d;
+        return JSON.stringify(this.p) + DIRS.indexOf(DIRROWCOLMAP[d.row][d.col]);
     }
 
 
@@ -187,20 +167,24 @@ export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
     rotateAroundOrigin(degrees) {
         this.p = rotate(this.p, degrees);
     }
-
-    turnToComplexDir(p: P) {
-        this.cd = p;
-    }
 }
 
 export function rotate(point: P, degrees: number): P {
+    degrees = degrees % 360;
+    if (degrees == 0) {
+        return cpP(point);
+    }
     const y = -point.row;
     const x = point.col;
-    const cos = Math.round(Math.cos(degrees * Math.PI / 180)) + 0;
-    const sin = Math.round(Math.sin(degrees * Math.PI / 180)) + 0;
-    const newX = cos * x - sin * y;
-    const newY = cos * y + sin * x;
-    return P(-newY, newX);
+    const cos = Math.cos(degrees * Math.PI / 180);
+    const sin = Math.round(Math.sin(degrees * Math.PI / 180));
+    const newX = Math.round(cos * x - sin * y);
+    const newY = Math.round(cos * y + sin * x);
+    let newP = P(-newY + 0, newX + 0);
+    if (DIRROWCOLMAP[newP.row]?.[newP.col]) {
+        return DIRROWCOLMAP[newP.row][newP.col];
+    }
+    return newP;
 }
 
 runTests();

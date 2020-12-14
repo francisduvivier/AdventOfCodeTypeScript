@@ -1,8 +1,8 @@
-import {IntcodeRunner} from "../intcode/IntcodeRunner.ts";
-import {GridRobot} from "../util/GridRobot.ts";
-import {input} from "./input.ts";
-import { assert, assertEquals } from "https://deno.land/std@0.80.0/testing/asserts.ts";
-import {logAndPushSolution} from "../util/SolutionHandler.ts";
+import { IntcodeRunner } from "../intcode/IntcodeRunner.ts";
+import { GridRobot, TURN } from "../util/GridRobot.ts";
+import { input } from "./input.ts";
+import { assertEquals } from "https://deno.land/std@0.80.0/testing/asserts.ts";
+import { logAndPushSolution } from "../util/SolutionHandler.ts";
 
 export interface IOHandler {
     getInput(): number;
@@ -28,6 +28,8 @@ class RobotIOHandler implements IOHandler {
         return this.robot.val || COLOR.BLACK;
     };
 
+    static readonly TURNMAP = [TURN.LEFT, TURN.RIGHT, TURN.NOTURN];
+
     doOutput(output: number): void {
         if (this.shouldPaint) {
             if (this.robot.val == undefined) {
@@ -35,7 +37,7 @@ class RobotIOHandler implements IOHandler {
             }
             this.robot.paint(output);
         } else {
-            this.robot.turn(output);
+            this.robot.turn(RobotIOHandler.TURNMAP[output]);
             this.robot.move();
         }
         this.shouldPaint = !this.shouldPaint;

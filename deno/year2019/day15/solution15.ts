@@ -3,7 +3,7 @@ import { IOHandler } from "../day11/solution11.ts";
 import { BLOCK, P, SPACE } from "../util/Grid.ts";
 import { logAndPushSolution } from "../util/SolutionHandler.ts";
 import { input } from "./input.ts";
-import { DIR, DIRS, getNewPos, GridRobot } from "../util/GridRobot.ts";
+import { DIR, DIRROWCOLMAP, DIRS, getNewPos, GridRobot } from "../util/GridRobot.ts";
 
 SPACE;
 const BALL = '\u25CF\u25CF';
@@ -33,7 +33,7 @@ const showGame = (el: any) => {
         case EL.OTHER:
             return '**';
     }
-    return '--'
+    return '--';
 };
 
 const BAD_STATE = 'bad state';
@@ -100,18 +100,18 @@ class Arcade implements IOHandler {
             }
         }
         const optionsLeft: DIR[] = [];
-        for (let dir of DIRS) {
+        for (const dir of DIRS) {
             let painted = this.robot.getNextVal(dir);
             if (painted == undefined || painted == UNEXPLORED && !badStates.has(this.robot.posToKeyWDir(dir))) {
                 unExplored.add(this.robot.posToKeyWDir(dir));
                 this.robot.paintNextDir(UNEXPLORED, dir);
-                optionsLeft.push(dir)
+                optionsLeft.push(dir);
             }
         }
         if (optionsLeft.length == 0) {
-            for (let i = 0; i < 4; i++) {
-                if (!badStates.has(this.robot.posToKeyWDir(i))) {
-                    optionsLeft.push(i)
+            for (const dir of DIRS) {
+                if (!badStates.has(this.robot.posToKeyWDir(dir))) {
+                    optionsLeft.push(dir);
                 }
             }
         } else {
@@ -141,7 +141,8 @@ enum JOYPOS {
 }
 
 export function dirWind(dir: DIR): JOYPOS {
-    switch (dir) {
+    const mappedDir = DIRROWCOLMAP[dir.row][dir.col];
+    switch (mappedDir) {
         case DIR.UP:
             return JOYPOS.N;
         case DIR.DOWN:
@@ -150,6 +151,8 @@ export function dirWind(dir: DIR): JOYPOS {
             return JOYPOS.W;
         case DIR.RIGHT:
             return JOYPOS.E;
+        default:
+            throw 'invalid';
     }
 }
 
@@ -164,7 +167,7 @@ export function part1() {
         const ir = new IntcodeRunner([...input], [], ar);
         try {
             ir.run();
-        } catch (e) {
+        } catch ( e ) {
             if (e == BAD_STATE) {
                 // console.log(e);
                 continue;
@@ -187,7 +190,7 @@ function part2() {
     const ir = new IntcodeRunner([...input], [], ar);
     try {
         ir.run();
-    } catch (e) {
+    } catch ( e ) {
         console.error(e);
         console.log('oxygenPos', oxygenPos);
     }
@@ -199,22 +202,22 @@ function part2() {
         grid.forEach((p: P) => {
             if (grid.get(p) == EL.OXYGEN) {
                 grid.set(p, 5);
-                for (let i = 0; i < 4; i++) {
-                    const adjacent = getNewPos(i, p);
+                for (const dir of DIRS) {
+                    const adjacent = getNewPos(dir, p);
                     if (grid.get(adjacent) == EMPTY) {
-                        grid.set(adjacent, 7)
+                        grid.set(adjacent, 7);
                     }
                 }
             }
         });
         grid.forEach((p: P) => {
             if (grid.get(p) == 7) {
-                grid.set(p, 4)
+                grid.set(p, 4);
             }
         });
         minutes++;
     }
-    console.log('minutes', minutes)
+    console.log('minutes', minutes);
 }
 
 part2();

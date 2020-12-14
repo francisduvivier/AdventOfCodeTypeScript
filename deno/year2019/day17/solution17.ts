@@ -1,12 +1,12 @@
-import {IOHandler} from "../day11/solution11.ts";
-import {ARROW, arrowToDir, DIR, getNewDir, getNewPos, GridRobot, isArrow, TURN} from "../util/GridRobot.ts";
-import {IntcodeRunner} from "../intcode/IntcodeRunner.ts";
-import {input} from "./input.ts";
-import {cpP, P} from "../util/Grid.ts";
-import {logAndPushSolution} from "../util/SolutionHandler.ts";
-import {allTruthy, sum} from "../util/MapReduce.ts";
-import { assert, assertEquals } from "https://deno.land/std@0.80.0/testing/asserts.ts";
-import {toCharCode, toLetter} from "../util/Strings.ts";
+import { IOHandler } from "../day11/solution11.ts";
+import { ARROW, arrowToDir, DIR, getNewDir, getNewPos, GridRobot, isArrow, TURN } from "../util/GridRobot.ts";
+import { IntcodeRunner } from "../intcode/IntcodeRunner.ts";
+import { input } from "./input.ts";
+import { cpP, P } from "../util/Grid.ts";
+import { logAndPushSolution } from "../util/SolutionHandler.ts";
+import { allTruthy, sum } from "../util/MapReduce.ts";
+import { assertEquals } from "https://deno.land/std@0.80.0/testing/asserts.ts";
+import { toCharCode, toLetter } from "../util/Strings.ts";
 
 // const BAD_STATE = 'bad state';
 // const badStates = new Set<string>();
@@ -36,7 +36,7 @@ class Arcade implements IOHandler {
     private lastOutput2: number = 0;
 
     constructor(public robot: GridRobot<string>) {
-        this.painter.d = DIR.RIGHT
+        this.painter.d = DIR.RIGHT;
     }
 
     doOutput(output: number): void {
@@ -122,11 +122,11 @@ export function part1() {
     const intersectPoints: P[] = [];
     arcade.painter.forEach(p => {
         if (arcade.painter.get(p) == '#' && allTruthy([DIR.RIGHT, DIR.LEFT, DIR.DOWN, DIR.UP].map(d => {
-                return arcade.painter.get(getNewPos(d, p)) == '#'
+                return arcade.painter.get(getNewPos(d, p)) == '#';
             })
         )) {
             intersects.push(p.row * p.col);
-            intersectPoints.push(P(p.row, p.col))
+            intersectPoints.push(P(p.row, p.col));
         }
     });
     // arcade.showGame();
@@ -154,7 +154,7 @@ export enum VIDCOD {
 }
 
 function tdToa(td: TD) {
-    return td == TD.L ? 'L' : 'R'
+    return td == TD.L ? 'L' : 'R';
 }
 
 assertEquals(tdToa(TD.L), 'L');
@@ -189,12 +189,12 @@ export function getIntCodeInputs(arcade: Arcade): (string | number)[] {
         }
         if (nextTurn == TURN.NOTURN) {
             if (prog.length && typeof prog[prog.length - 1] == "number") {
-                (prog[prog.length - 1] as number) += 1
+                (prog[prog.length - 1] as number) += 1;
             } else {
-                prog.push(1)
+                prog.push(1);
             }
         } else {
-            prog.push(toLetter(nextTurn))
+            prog.push(toLetter(nextTurn));
         }
 
         nextTurn = getNextTurnDir(robot, painter);
@@ -211,7 +211,7 @@ function movesToProgram(moves: (string | number)[]) {
     let A = `R,8,L,12,R,8`;
     let B = `L,10,L,10,R,8`;
     let C = `L,12,L,12,L,10,R,10`;
-    const prog = `A,A,B,C,B,C,B,A,C,A\n${A}\n${B}\n${C}\ny\n`
+    const prog = `A,A,B,C,B,C,B,A,C,A\n${A}\n${B}\n${C}\ny\n`;
     return prog;
 }
 
@@ -233,3 +233,4 @@ function part2() {
 }
 
 logAndPushSolution(part2(), solutions);
+assertEquals(solutions[1], 933214);

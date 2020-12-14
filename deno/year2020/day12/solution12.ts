@@ -1,8 +1,8 @@
 import { assertEquals } from "https://deno.land/std@0.80.0/testing/asserts.ts";
 import { rInput, tInput } from "./input12.ts";
-import { GridRobot } from "../year2019/util/GridRobot.ts";
-import { P } from "../year2019/util/Grid.ts";
-import { logAndPushSolution } from "../year2019/util/SolutionHandler.ts";
+import { GridRobot } from "../../year2019/util/GridRobot.ts";
+import { P } from "../../year2019/util/Grid.ts";
+import { logAndPushSolution } from "../../year2019/util/SolutionHandler.ts";
 
 declare const console: any;
 type INST = 'N' |// means to move north by the given value.
@@ -38,8 +38,8 @@ function calcEndManhattanDistance(input: string[], startWayPoint, moveWaypoint =
                 waypoint.rotateAroundOrigin(remainingDegrees * (letter === 'L' ? 1 : -1));
                 break;
             case "F":
-                craft.turnToComplexDir(waypoint.p);
-                craft.moveCD(amount);
+                craft.d = waypoint.p;
+                craft.move(amount);
                 break;
             default:
                 break;
@@ -65,5 +65,6 @@ logAndPushSolution(part1(rInput), sols);
 assertEquals(sols[0], 1319);
 assertEquals(part2(tInput), 286);
 logAndPushSolution(part2(rInput), sols);
+assertEquals(sols[1], 62434);
 
 
