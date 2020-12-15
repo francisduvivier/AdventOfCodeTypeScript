@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.80.0/testing/asserts.ts";
-import { rInput, tInput } from "./input12.ts";
+import { rInput, tInput } from "./input.ts";
 import { GridRobot } from "../../year2019/util/GridRobot.ts";
 import { P } from "../../year2019/util/Grid.ts";
 import { logAndPushSolution } from "../../year2019/util/SolutionHandler.ts";
