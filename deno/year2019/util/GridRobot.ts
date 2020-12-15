@@ -70,11 +70,11 @@ export function getNewPosForArrow(dir: ARROW, p: P): P {
     return getNewPos(arrowToDir(dir), p);
 }
 
-export function getNewPos(dir: DIR, p: P): P {
+export function getNewPos(dir: P, p: P): P {
     return P(p.row + dir.row, p.col + dir.col);
 }
 
-export function getNewDir(currAbsDir: DIR, degrees: number): DIR {
+export function getNewDir(currAbsDir: P, degrees: number): DIR {
     return rotate(currAbsDir, degrees) as DIR;
 }
 
@@ -99,13 +99,13 @@ export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
         this._p = p;
     }
 
-    private _d: DIR = DIR.UP;
+    private _d: P = DIR.UP;
 
-    get d(): DIR {
+    get d(): P {
         return this._d;
     }
 
-    set d(value: DIR) {
+    set d(value: P) {
         this._d = value;
     }
 
@@ -141,20 +141,20 @@ export class GridRobot<ELTYPE> extends Grid<ELTYPE> {
         return getNewDir(this.d, turnDir);
     }
 
-    getNextPos(dir: DIR = this.d): P {
+    getNextPos(dir: P = this.d): P {
         return getNewPos(dir, this.p);
     }
 
-    getNextVal(dir: DIR = this.d): ELTYPE | undefined {
+    getNextVal(dir: P = this.d): ELTYPE | undefined {
         return this.get(this.getNextPos(dir));
     }
 
-    paintNextDir(output: ELTYPE, dir: DIR) {
+    paintNextDir(output: ELTYPE, dir: P) {
         const newPos = getNewPos(dir, this._p);
         this.set(newPos, output);
     }
 
-    posToKeyWDir(d: DIR): string {
+    posToKeyWDir(d: P): string {
         return JSON.stringify(this.p) + DIRS.indexOf(DIRROWCOLMAP[d.row][d.col]);
     }
 
